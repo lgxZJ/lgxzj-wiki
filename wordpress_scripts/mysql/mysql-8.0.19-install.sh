@@ -1,3 +1,5 @@
+./mysql-8.0.19-deps.sh
+
 rm -rf /lgxzj-install/mysql
 mkdir /lgxzj-install/mysql
 
