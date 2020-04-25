@@ -1,3 +1,17 @@
+#############################
+# Prepare Option Files
+#############################
+rm -rf ${mysql_install_dir}/etc
+mkdir ${mysql_install_dir}/etc
+
+rm -rf ${mysql_install_dir}/logs
+mkdir ${mysql_install_dir}/logs
+
+rm -rf ${mysql_install_dir}/tmp
+mkdir ${mysql_install_dir}/tmp
+
+cp ./my.cnf ${mysql_install_dir}/etc
+
 ##############################
 # Enter the install dir
 ##############################
@@ -14,13 +28,6 @@ groupadd ${mysql_group}
 # create a non login permission user
 useradd -r -g ${mysql_group} -s /bin/false ${mysql_user}
 
-#############################
-# Prepare Option Files
-#############################
-TODO
-
-# setup secure_file_priv related stuffs
-# specify data dir
 
 ##############################
 # Initialize data
@@ -29,7 +36,7 @@ mysql_conf_path=${mysql_install_dir}/etc/my.cnf
 
 # this will cause mysqld to initialize the data directory
 # with the given user as the default owner
-./bin/mysqld --defaults-file=${mysql_config_path} --initialize-insecure --user=${mysql_user}
+./bin/mysqld --defaults-file=${mysql_config_path} --initialize-insecure
 
 ##############################
 # Change Local Root Password
