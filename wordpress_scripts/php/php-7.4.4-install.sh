@@ -20,6 +20,6 @@ groupadd ${php_group}
 # create a non login permission user
 useradd -r -g ${php_group} -s /bin/false ${php_user}
 
-./configure --prefix=/lgxzj-install/php --enable-fpm --with-fpm-user=${php_user} --with-fpm-group=${php_group}
+./configure --prefix=/lgxzj-install/php --enable-fpm --with-fpm-user=${php_user} --with-fpm-group=${php_group} --with-pdo-pgsql --with-zlib-dir --with-freetype --enable-mbstring --enable-soap --enable-calendar --with-curl --with-zlib --enable-gd --with-pgsql --disable-rpath --enable-inline-optimization --with-bz2 --with-zlib --enable-sockets --enable-sysvsem --enable-sysvshm --enable-pcntl --enable-mbregex --enable-exif --enable-bcmath --with-mhash --with-zip --with-pdo-mysql --with-mysqli --with-jpeg --with-openssl --enable-ftp --with-imap --with-imap-ssl --with-kerberos --with-gettext --with-xmlrpc --with-xsl --enable-opcache --enable-intl --with-pear
 make
 make install
