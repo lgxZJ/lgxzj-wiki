@@ -19,4 +19,10 @@ cd nginx
 ./nginx-1.17.9-start.sh
 cd ..
 
+cd wordpress
+./wordpress-install.sh
+./wordpress-prepare-db.sh
+./wordpress-deploy.sh
+cd ..
+
 ./post-install.sh
