@@ -13,15 +13,9 @@ fi
 # Load variables from the conf file
 ##############################################################
 iniFileLoc=../lgxzj.ini
-php_install_dir=$(read_ini ${iniFileLoc} install_php_dir)
+nginx_install_dir=$(read_ini ${iniFileLoc} install_nginx_dir)
 
 ##############################################################
-# Start php-fpm
+# Stop Nginx
 ##############################################################
-mv ${php_install_dir}/etc/php-fpm.conf.default ${php_install_dir}/etc/php-fpm.conf
-rm -f ${php_install_dir}/etc/php-fpm.d/www.conf.default
-cp ./php-fpm.conf ${php_install_dir}/etc
-cp ./wordpress.conf ${php_install_dir}/etc/php-fpm.d/
-cp ./php.ini ${php_install_dir}/etc
-
-${php_install_dir}/sbin/php-fpm  --fpm-config ${php_install_dir}/etc/php-fpm.conf -c ${php_install_dir}/etc/php.ini
+${nginx_install_dir}/sbin/nginx -s stop

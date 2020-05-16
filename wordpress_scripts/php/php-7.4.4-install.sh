@@ -20,8 +20,8 @@ download_tmp_dir=$(read_ini ${iniFileLoc} download_leaf_dir_name)
 php_download_url=$(read_ini ${iniFileLoc} php_download_url)
 php_download_name=$(read_ini ${iniFileLoc} php_download_name)
 php_download_prefix=$(read_ini ${iniFileLoc} php_download_prefix)
-php_user=$(read_ini ${iniFileLoc} lgxzj-php)
-php_group=$(read_ini ${iniFileLoc} lgxzj-php)
+php_user=$(read_ini ${iniFileLoc} php_user)
+php_group=$(read_ini ${iniFileLoc} php_group)
 
 ##############################################################
 # Download php sources

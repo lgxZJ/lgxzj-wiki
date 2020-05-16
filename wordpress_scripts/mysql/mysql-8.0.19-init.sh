@@ -18,7 +18,7 @@ mysql_install_dir=$(read_ini ${iniFileLoc} install_mysql_dir)
 script_dir=`pwd`
 mysql_user=$(read_ini ${iniFileLoc} mysql_user)
 mysql_group=$(read_ini ${iniFileLoc} mysql_group)
-mysql_root_local_password=$(read_ini ${iniFileLoc} root_local_password)
+mysql_root_local_password=$(read_ini ${iniFileLoc} mysql_root_local_password)
 
 #############################
 # Prepare Option Files
@@ -79,4 +79,6 @@ cd ${script_dir}
 mysql_sock_loc=${mysql_install_dir}/data/mysql.sock
 cd ${mysql_install_dir}
 ./bin/mysql --socket=${mysql_sock_loc} -u root --skip-password -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysql_root_local_password}'"
-./mysql-8.0.19-shutdown.sh
+
+cd ${script_dir}
+./mysql-8.0.19-stop.sh

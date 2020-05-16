@@ -18,7 +18,7 @@ iniFileLoc=../lgxzj.ini
 mysql_install_dir=$(read_ini ${iniFileLoc} install_mysql_dir)
 mysql_download_dir=$(read_ini ${iniFileLoc} download_leaf_dir_name)
 mysql_download_url=$(read_ini ${iniFileLoc} mysql_download_url)
-mysql_download_name=$(read_ini ${iniFileLoc} mysql_download_url)
+mysql_download_name=$(read_ini ${iniFileLoc} mysql_download_name)
 mysql_download_prefix=$(read_ini ${iniFileLoc} mysql_download_prefix)
 
 ############################################################
@@ -27,7 +27,7 @@ mysql_download_prefix=$(read_ini ${iniFileLoc} mysql_download_prefix)
 rm -rf ${mysql_install_dir}
 mkdir ${mysql_install_dir}
 
-rm -rd ${mysql_download_dir}
+rm -r ${mysql_download_dir}
 mkdir ${mysql_download_dir}
 cd ${mysql_download_dir}
 wget ${mysql_download_url}
