@@ -12,11 +12,22 @@ function read_ini() {
 
 	while read line
 	do
+		if [ "${line:0:1}" = "#" ]; then
+			# skip comments
+			continue
+		fi
+
+		if [ -z "${line}" ]; then
+			# skip empty lines
+			continue
+		fi
 
 		keyValue=(${line//=/ })
 		if [ "${#keyValue[*]}" -ne 2 ]; then
+			echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 			echo "invalid ini line inside file: ${line}"
-			continue
+			echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+			exit 255
 		fi
 
 		if [ "${keyValue[0]}" != "${checkKey}" ]; then
