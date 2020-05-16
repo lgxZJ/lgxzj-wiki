@@ -1,5 +1,29 @@
-./inf-install.sh
+##############################################################
+# Load inf funcs
+##############################################################
+if [ ! -f "./ini_reader.sh" ]; then
+    echo "!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "ini_reader.sh not found"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!"
+    exit 255
+fi
+. ./ini_reader.sh
 
+##############################################################
+# Load variables from the conf file
+##############################################################
+iniFileLoc=./lgxzj.ini
+root_install_dir=$(read_ini ${iniFileLoc} install_root_dir)
+
+###################################
+# Install global deps
+###################################
+yum install -y wget gcc make tar git
+mkdir ${root_install_dir}
+
+#############################################
+# Install and start Mysql/Php/Nginx/Wordpress
+#############################################
 cd mysql
 ./mysql-8.0.19-deps.sh
 ./mysql-8.0.19-install.sh
@@ -25,4 +49,8 @@ cd wordpress
 ./wordpress-deploy.sh
 cd ..
 
-./post-install.sh
+########################################################
+# Open port 80 via firewalld
+########################################################
+firewall-cmd --permanent --zone=public --add-port=80/tcp
+firewall-cmd --reload
