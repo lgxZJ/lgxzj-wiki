@@ -1,21 +1,44 @@
 ./php-7.4.4-deps.sh
 
-rm -rf /lgxzj-install/php
-mkdir /lgxzj-install/php
+##############################################################
+# Load inf funcs
+##############################################################
+if [ ! -f "../ini_reader.sh" ]; then
+    echo "!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "ini_reader.sh not found"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!"
+    exit 255
+fi
+. ../ini_reader.sh
 
-rm -rf lgxzj-php
-mkdir lgxzj-php
-cd lgxzj-php
-wget https://www.php.net/distributions/php-7.4.4.tar.gz
-tar -zxvf php-7.4.4.tar.gz
-cd php-7.4.4
+##############################################################
+# Load variables from the conf file
+##############################################################
+iniFileLoc=../lgxzj.ini
+php_install_dir=$(read_ini ${iniFileLoc} install_php_dir)
+download_tmp_dir=$(read_ini ${iniFileLoc} download_leaf_dir_name)
+php_download_url=$(read_ini ${iniFileLoc} php_download_url)
+php_download_name=$(read_ini ${iniFileLoc} php_download_name)
+php_download_prefix=$(read_ini ${iniFileLoc} php_download_prefix)
+php_user=$(read_ini ${iniFileLoc} lgxzj-php)
+php_group=$(read_ini ${iniFileLoc} lgxzj-php)
+
+##############################################################
+# Download php sources
+##############################################################
+rm -rf ${php_install_dir}
+mkdir ${php_install_dir}
+
+rm -rf ${download_tmp_dir}
+mkdir ${download_tmp_dir}
+cd ${download_tmp_dir}
+wget ${php_download_url}
+tar -zxvf ${php_download_name}
+cd ${php_download_prefix}
 
 ##############################
 # Create user and group
 ##############################
-php_user=lgxzj-php
-php_group=lgxzj-php
-
 groupadd ${php_group}
 # create a non login permission user
 useradd -r -g ${php_group} -s /bin/false ${php_user}
