@@ -9,6 +9,14 @@ if [ ! -f "../ini_reader.sh" ]; then
 fi
 . ../ini_reader.sh
 
+if [ ! -f "../str_replacer.sh" ]; then
+    echo "!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "str_replacer.sh not found"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!"
+    exit 255
+fi
+. ../str_replacer.sh
+
 ##############################################################
 # Load variables from the conf file
 ##############################################################
@@ -19,6 +27,14 @@ script_dir=`pwd`
 mysql_user=$(read_ini ${iniFileLoc} mysql_user)
 mysql_group=$(read_ini ${iniFileLoc} mysql_group)
 mysql_root_local_password=$(read_ini ${iniFileLoc} mysql_root_local_password)
+
+##############################################################
+# Replace variables with conf values
+##############################################################
+rm -f my.cnf
+cp ./my.cnf.template ./my.cnf
+replace_str ./my.cnf '${install_mysql_dir}' ${mysql_install_dir}
+replace_str ./my.cnf '${mysql_user}' ${mysql_user}
 
 #############################
 # Prepare Option Files

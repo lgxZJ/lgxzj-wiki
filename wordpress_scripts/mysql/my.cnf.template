@@ -1,10 +1,10 @@
 [mysql]
-socket=/lgxzj-install/mysql/data/mysql.sock
+socket=${install_mysql_dir}/data/mysql.sock
 
 [mysqld]
-basedir=/lgxzj-install/mysql
-datadir=/lgxzj-install/mysql/data
-tmpdir=/lgxzj-install/mysql/tmp
+basedir=${install_mysql_dir}
+datadir=${install_mysql_dir}/data
+tmpdir=${install_mysql_dir}/tmp
 
 sql_require_primary_key=ON
 
@@ -18,19 +18,19 @@ lock_wait_timeout=31536000
 # necessary for supervisor to monitor
 daemonize=OFF
 
-log_bin=/lgxzj-install/mysql/logs/mysql.binlog
-log_bin_index=/lgxzj-install/mysql/logs/mysql.binglogidx
+log_bin=${install_mysql_dir}/logs/mysql.binlog
+log_bin_index=${install_mysql_dir}/logs/mysql.binglogidx
 
 log_error_verbosity=2
-log-error=/lgxzj-install/mysql/logs/mysql.error
+log-error=${install_mysql_dir}/logs/mysql.error
 log-short-format=OFF
 log_output=FILE
 
 general_log=ON
-general_log_file=/lgxzj-install/mysql/logs/mysql.general
+general_log_file=${install_mysql_dir}/logs/mysql.general
 
 slow_query_log=ON
-slow_query_log_file=/lgxzj-install/mysql/logs/mysql.slow
+slow_query_log_file=${install_mysql_dir}/logs/mysql.slow
 log_queries_not_using_indexes=ON
 log_throttle_queries_not_using_indexes=0
 log_slow_admin_statements=ON
@@ -50,8 +50,8 @@ net_retry_count=10
 
 bind-address=*
 port=3306
-socket=/lgxzj-install/mysql/data/mysql.sock
-pid_file=/lgxzj-install/mysql/data/mysql.pid
+socket=${install_mysql_dir}/data/mysql.sock
+pid_file=${install_mysql_dir}/data/mysql.pid
 
 skip-host-cache
 skip-show-database
@@ -64,7 +64,7 @@ transaction-read-only=OFF
 upgrade=NONE
 check_proxy_users=OFF
 
-user=lgxzj-mysql
+user=${mysql_user}
 
 connect_timeout=10
 disconnect_on_expired_password=ON
@@ -74,9 +74,9 @@ default-tmp-storage-engine=InnoDB
 disabled_storage_engines=
 
 [mysqld_safe]
-basedir=/lgxzj-install/mysql
-datadir=/lgxzj-install/mysql/data
-tmpdir=/lgxzj-install/mysql/tmp
+basedir=${install_mysql_dir}
+datadir=${install_mysql_dir}/data
+tmpdir=${install_mysql_dir}/tmp
 
 sql_require_primary_key=ON
 
@@ -91,19 +91,19 @@ lock_wait_timeout=31536000
 daemonize=OFF
 
 log_bin=ON
-log_bin_basename=/lgxzj-install/mysql/logs/mysql.binlog
-log_bin_index=/lgxzj-install/mysql/logs/mysql.binglogidx
+log_bin_basename=${install_mysql_dir}/logs/mysql.binlog
+log_bin_index=${install_mysql_dir}/logs/mysql.binglogidx
 
 log_error_verbosity=2
-log-error=/lgxzj-install/mysql/logs/mysql.error
+log-error=${install_mysql_dir}/logs/mysql.error
 log-short-format=OFF
 log_output=FILE
 
 general_log=ON
-general_log_file=/lgxzj-install/mysql/logs/mysql.general
+general_log_file=${install_mysql_dir}/logs/mysql.general
 
 slow_query_log=ON
-slow_query_log_file=/lgxzj-install/mysql/logs/mysql.slow
+slow_query_log_file=${install_mysql_dir}/logs/mysql.slow
 log_queries_not_using_indexes=ON
 log_throttle_queries_not_using_indexes=0
 log_slow_admin_statements=ON
@@ -123,8 +123,8 @@ net_retry_count=10
 
 bind-address=*
 port=3306
-socket=/lgxzj-install/mysql/data/mysql.sock
-pid_file=/lgxzj-install/mysql/data/mysql.pid
+socket=${install_mysql_dir}/data/mysql.sock
+pid_file=${install_mysql_dir}/data/mysql.pid
 
 skip-host-cache
 skip-show-database
@@ -137,7 +137,7 @@ transaction-read-only=OFF
 upgrade=NONE
 check_proxy_users=OFF
 
-user=lgxzj-mysql
+user=${mysql_user}
 
 connect_timeout=10
 disconnect_on_expired_password=ON
