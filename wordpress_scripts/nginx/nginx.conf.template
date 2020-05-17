@@ -34,7 +34,7 @@ http {
 
     server {
         listen       80;
-        server_name  www.lgxzj.wiki;
+	server_name  ${blog_domain}
 	client_max_body_size 100M;
 
         #charset koi8-r;
@@ -42,7 +42,7 @@ http {
         #access_log  logs/host.access.log  main;
 	
 	index	index.php;
-	root	/lgxzj-install/nginx/html;	
+	root	${install_nginx_dir}/html;	
 
 	location / {
 	    try_files $uri $uri/  /index.php$args;
