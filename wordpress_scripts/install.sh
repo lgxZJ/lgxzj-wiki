@@ -46,7 +46,6 @@ cd ..
 cd wordpress
 ./wordpress-install.sh
 ./wordpress-prepare-db.sh
-./wordpress-deploy.sh
 cd ..
 
 ########################################################

@@ -2,6 +2,7 @@ function replace_str() {
     if [ "$#" -ne 3 ]; then
 	echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 	echo -e "usage: replace_str fileLoc oldText newText"
+	echo -e "current: replace_str $1 $2 $3"
 	echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 	return 255
