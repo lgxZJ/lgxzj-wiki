@@ -1,0 +1,2 @@
+date_literal=`date +"%Y_%m_%d_%H_%M_%S"`
+${mysql_install_dir}/bin/mysqldump --databases ${wordpress_db_name} --add-drop-database > "${install_backups_dir}\wordpress_db_full_backup_${date_literal}.sql"

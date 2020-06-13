@@ -28,6 +28,7 @@ install_backups_dir=$(read_ini ${iniFileLoc} install_backups_dir)
 borg_standalone_download_url=$(read_ini ${iniFileLoc} borg_standalone_download_url)
 borg_backup_repokey=$(read_ini ${iniFileLoc} borg_backup_repokey)
 wordpress_deploy_dir=$(read_ini ${iniFileLoc} wordpress_deploy_dir)
+wordpress_db_name=$(read_ini ${iniFileLoc} wordpress_db_name)
 
 ### Download and Install Borg
 cur_dir=`pwd`
@@ -64,6 +65,12 @@ replace_str wordpress_backup.sh '${install_backups_dir}' ${install_backups_dir}
 replace_str wordpress_backup.sh '${wordpress_deploy_dir}' ${wordpress_deploy_dir}
 cp wordpress_backup.sh ${install_backups_dir}
 chmod u+x ${install_backups_dir}/wordpress_backup.sh
+
+rm -f mysql_backup.sh
+cp mysql_backup.template mysql_backup.sh
+replace_str mysql_backup.sh '${mysql_install_dir}' ${mysql_install_dir}
+replace_str mysql_backup.sh '${wordpress_db_name}' ${wordpress_db_name}
+replace_str mysql_backup.sh '${install_backups_dir}' ${install_backups_dir}
 
 ###############################################
 # Deploy backup scripts
