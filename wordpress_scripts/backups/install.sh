@@ -78,6 +78,8 @@ cp mysql_backup.template mysql_backup.sh
 replace_str mysql_backup.sh '${mysql_install_dir}' ${install_mysql_dir}
 replace_str mysql_backup.sh '${wordpress_db_name}' ${wordpress_db_name}
 replace_str mysql_backup.sh '${install_backups_dir}' ${install_backups_dir}
+replace_str mysql_backup.sh '${mysql_socket_file_loc}' ${mysql_socket_file_loc}
+replace_str mysql_backup.sh '${mysql_root_local_password}' ${mysql_root_local_password}
 cp mysql_backup.sh ${install_backups_dir}
 chmod u+x ${install_backups_dir}/mysql_backup.sh
 

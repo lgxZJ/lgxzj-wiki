@@ -1,2 +1,19 @@
-date_literal=`date +"%Y_%m_%d_%H_%M_%S"`
-${mysql_install_dir}/bin/mysqldump --databases ${wordpress_db_name} --add-drop-database > "${install_backups_dir}\wordpress_db_full_backup_${date_literal}.sql"
+###########################################
+# Create backup files for today
+###########################################
+date_literal=`date +"%Y_%m_%d"`
+backup_file_name="${install_backups_dir}/wordpress_db_full_backup_${date_literal}.sql"
+
+echo "Backup starts: `date`"
+${mysql_install_dir}/bin/mysqldump --socket ${mysql_socket_file_loc} -u root -p${mysql_root_local_password} --databases ${wordpress_db_name} --add-drop-database > ${backup_file_name}
+echo "Backup ends: `date`"
+
+###########################################
+# Remove the backup file which is 7 days earlier
+###########################################
+date_to_check=`date -d "7 day ago" +%Y_%m_%d`
+file_to_check="${install_backups_dir}/wordpress_db_full_backup_${date_to_check}.sql"
+
+if [ -f "${file_to_check}"  ]; then
+   rm -f ${file_to_check}
+fi

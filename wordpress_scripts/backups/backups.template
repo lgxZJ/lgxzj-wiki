@@ -15,4 +15,4 @@ MAILTO=lgxzj@outlook.com
 @daily ${install_backups_dir}/mysql_backup.sh
 
 @reboot ${install_backups_dir}/wordpress_backup.sh
-# @reboot ${install_backups_dir}/mysql_backup.sh 
+@reboot ${install_backups_dir}/mysql_backup.sh 
