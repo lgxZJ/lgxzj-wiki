@@ -23,6 +23,7 @@ fi
 
 ### Read Borg related confs
 iniFileLoc=../lgxzj.ini
+install_mysql_dir=$(read_ini ${iniFileLoc} install_mysql_dir)
 install_borg_dir=$(read_ini ${iniFileLoc} install_borg_dir)
 install_backups_dir=$(read_ini ${iniFileLoc} install_backups_dir)
 borg_standalone_download_url=$(read_ini ${iniFileLoc} borg_standalone_download_url)
@@ -74,9 +75,11 @@ chmod u+x ${install_backups_dir}/wordpress_backup.sh
 # Generate mysql_backup.sh
 rm -f mysql_backup.sh
 cp mysql_backup.template mysql_backup.sh
-replace_str mysql_backup.sh '${mysql_install_dir}' ${mysql_install_dir}
+replace_str mysql_backup.sh '${mysql_install_dir}' ${install_mysql_dir}
 replace_str mysql_backup.sh '${wordpress_db_name}' ${wordpress_db_name}
 replace_str mysql_backup.sh '${install_backups_dir}' ${install_backups_dir}
+cp mysql_backup.sh ${install_backups_dir}
+chmod u+x ${install_backups_dir}/mysql_backup.sh
 
 ###############################################
 # Deploy backup scripts
