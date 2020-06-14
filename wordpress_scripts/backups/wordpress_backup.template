@@ -3,7 +3,7 @@ export BORG_PASSPHRASE=${borg_backup_repokey}
 echo ""
 echo "Backup starts: `date`"
 
-date_literal=`date +%Y_%m_%d_%H_%M_%S`
+date_literal=`date +%Y_%m_%d`
 archive_name="wordpress_backup_${date_literal}"
 ${install_borg_dir}/borg create ${install_backups_dir}::${archive_name} ${wordpress_deploy_dir}
 ${install_borg_dir}/borg export-tar ${install_backups_dir}::${archive_name} "${install_backups_dir}/${archive_name}.tar.gz"
