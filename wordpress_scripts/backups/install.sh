@@ -32,6 +32,8 @@ wordpress_deploy_dir=$(read_ini ${iniFileLoc} wordpress_deploy_dir)
 wordpress_db_name=$(read_ini ${iniFileLoc} wordpress_db_name)
 mysql_socket_file_loc=$(read_ini ${iniFileLoc} mysql_socket_file_loc)
 mysql_root_local_password=$(read_ini ${iniFileLoc} mysql_root_local_password)
+backup_password=$(read_ini ${iniFileLoc} backup_password)
+backup_user=$(read_ini ${iniFileLoc} backup_user)
 
 ### Download and Install Borg
 cur_dir=`pwd`
@@ -82,6 +84,13 @@ replace_str mysql_backup.sh '${mysql_socket_file_loc}' ${mysql_socket_file_loc}
 replace_str mysql_backup.sh '${mysql_root_local_password}' ${mysql_root_local_password}
 cp mysql_backup.sh ${install_backups_dir}
 chmod u+x ${install_backups_dir}/mysql_backup.sh
+
+#####################################`##########
+# Generate Backup accout
+###############################################
+userdel -r ${backup_user}
+useradd ${backup_user} -m
+echo ${backup_password} | passwd ${backup_user} --stdin
 
 ###############################################
 # Deploy backup scripts

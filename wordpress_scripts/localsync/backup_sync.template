@@ -1,0 +1,11 @@
+echo ""
+echo "=============================="
+echo "Backup sync starts: `date`"
+
+date_to_sync=`date -d "1 day ago" +%Y_%m_%d`
+scp backup@${blog_domain}:${install_backups_dir}/mysql_backup_${date_to_sync}.sql .
+scp backup@${blog_domain}:${install_backups_dir}/wordpress_backup_{date_to_sync}.tar.gz .
+
+echo "Backup sync ends: `date`"
+echo "=============================="
+echo ""
