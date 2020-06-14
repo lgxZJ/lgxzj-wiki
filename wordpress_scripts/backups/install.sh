@@ -88,7 +88,7 @@ chmod u+x ${install_backups_dir}/mysql_backup.sh
 #####################################`##########
 # Generate Backup accout
 ###############################################
-userdel -r ${backup_user}
+userdel -r ${backup_user} > /dev/null
 useradd ${backup_user} -m
 echo ${backup_password} | passwd ${backup_user} --stdin
 
