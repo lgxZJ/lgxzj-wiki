@@ -48,6 +48,10 @@ cd wordpress
 ./wordpress-prepare-db.sh
 cd ..
 
+cd backups
+./install.sh
+cd ..
+
 ########################################################
 # Open port 80 via firewalld
 ########################################################
