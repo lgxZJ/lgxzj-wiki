@@ -12,5 +12,9 @@ function replace_str() {
     oldText="$2"
     newText="$3"
 
-    sed -i "s#${oldText}#${newText}#g" ${fileLoc}
+    if [[ "${OSTYPE}" == "darwin"* ]]; then
+    	sed -i '.bak' "s#${oldText}#${newText}#g" ${fileLoc}
+    else
+        sed -i "s#${oldText}#${newText}#g" ${fileLoc}
+    fi
 }

@@ -2,9 +2,14 @@ echo ""
 echo "=============================="
 echo "Backup sync starts: `date`"
 
-date_to_sync=`date -d "1 day ago" +%Y_%m_%d`
-scp backup@${blog_domain}:${install_backups_dir}/mysql_backup_${date_to_sync}.sql .
-scp backup@${blog_domain}:${install_backups_dir}/wordpress_backup_{date_to_sync}.tar.gz .
+if [[ "${OSTYPE}" == "darwin"* ]]; then
+    date_to_sync=`date -v-1d +%Y_%m_%d`
+else
+    date_to_sync=`date -d "1 day ago" +%Y_%m_%d`
+fi
+
+scp ${backup_user}@${blog_domain}:${install_backups_dir}/mysql_backup_${date_to_sync}.sql .
+scp ${backup_user}@${blog_domain}:${install_backups_dir}/wordpress_backup_${date_to_sync}.tar.gz .
 
 echo "Backup sync ends: `date`"
 echo "=============================="
