@@ -34,7 +34,6 @@ sshkey_pub_loc="${home_dir}/${sshkey_pub_loc}"
 #####################################
 # Setup non-password ssh login
 #####################################
-home_dir=`echo $HOME`
 rm -f ${sshkey_loc}
 rm -f ${sshkey_pub_loc}
 ssh-keygen -t rsa -N "" -f ${sshkey_loc}
@@ -49,6 +48,7 @@ cp backup_sync.template backup_sync.sh
 replace_str backup_sync.sh '${install_backups_dir}' ${install_backups_dir}
 replace_str backup_sync.sh '${blog_domain}' ${blog_domain}
 replace_str backup_sync.sh '${backup_user}' ${backup_user}
+replace_str backup_sync.sh '${sshkey_loc}' ${sshkey_loc}
 chmod u+x backup_sync.sh
 
 chmod u+x backup_crontab.sh
