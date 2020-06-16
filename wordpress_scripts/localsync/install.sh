@@ -51,6 +51,9 @@ replace_str backup_sync.sh '${backup_user}' ${backup_user}
 replace_str backup_sync.sh '${sshkey_loc}' ${sshkey_loc}
 chmod u+x backup_sync.sh
 
+rm -f backup_crontab.sh
+cp backup_crontab.template backup_crontab.sh
+replace_str backup_crontab.sh '${localsync_dir}' `pwd`
 chmod u+x backup_crontab.sh
 
 #####################################
