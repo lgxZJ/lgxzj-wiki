@@ -48,6 +48,11 @@ cd wordpress
 ./wordpress-prepare-db.sh
 cd ..
 
+cd monitor
+./install.sh
+./start.sh
+cd ..
+
 cd backups
 ./install.sh
 cd ..
