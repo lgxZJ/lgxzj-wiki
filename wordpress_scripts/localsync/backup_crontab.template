@@ -11,5 +11,5 @@ MAILTO=lgxzj@outlook.com
 # |  |  |  |  |
 # *  *  *  *  * user-name  command to be executed
 
-@daily ./backup_sync.sh
-@reboot ./backup_sync.sh
+@daily cd ${localsync_dir} && ./backup_sync.sh
+@reboot cd ${localsync_dir} && ./backup_sync.sh

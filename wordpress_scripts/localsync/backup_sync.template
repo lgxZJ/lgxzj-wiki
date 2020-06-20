@@ -8,8 +8,8 @@ else
     date_to_sync=`date -d "1 day ago" +%Y_%m_%d`
 fi
 
-scp ${backup_user}@${blog_domain}:${install_backups_dir}/mysql_backup_${date_to_sync}.sql .
-scp ${backup_user}@${blog_domain}:${install_backups_dir}/wordpress_backup_${date_to_sync}.tar.gz .
+scp -i ${sshkey_loc} ${backup_user}@${blog_domain}:${install_backups_dir}/mysql_backup_${date_to_sync}.sql . >> mysql_backup.log
+scp -i ${sshkey_loc} ${backup_user}@${blog_domain}:${install_backups_dir}/wordpress_backup_${date_to_sync}.tar.gz . >> wordpress_backup.log
 
 echo "Backup sync ends: `date`"
 echo "=============================="
