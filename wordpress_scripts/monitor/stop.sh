@@ -11,3 +11,10 @@ if [ -z "${node_exporter_pid}" ]; then
 else
     kill -s SIGTERM ${node_exporter_pid}
 fi
+
+mysqld_exporter_pid=`pgrep -f mysqld_exporter`
+if [ -z "${mysqld_exporter_pid}" ]; then
+    echo "mysqld_exporter not active, no need to kill"
+else
+    kill -s SIGTERM ${mysqld_exporter_pid}
+fi

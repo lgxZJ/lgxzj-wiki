@@ -23,16 +23,24 @@ fi
 iniFileLoc=../lgxzj.ini
 download_leaf_dir_name=$(read_ini ${iniFileLoc} download_leaf_dir_name)
 monitor_install_dir=$(read_ini ${iniFileLoc} monitor_install_dir)
+
 prometheus_download_url=$(read_ini ${iniFileLoc} prometheus_download_url)
 prometheus_download_name=$(read_ini ${iniFileLoc} prometheus_download_name)
 prometheus_download_prefix=$(read_ini ${iniFileLoc} prometheus_download_prefix)
 prometheus_listen_address=$(read_ini ${iniFileLoc} prometheus_listen_address)
+
 monitor_prometheus_install_dir=$(read_ini ${iniFileLoc} monitor_prometheus_install_dir)
 monitor_exporters_install_dir=$(read_ini ${iniFileLoc} monitor_exporters_install_dir)
+
 node_exporter_download_url=$(read_ini ${iniFileLoc} node_exporter_download_url)
 node_exporter_download_name=$(read_ini ${iniFileLoc} node_exporter_download_name)
 node_exporter_download_prefix=$(read_ini ${iniFileLoc} node_exporter_download_prefix)
 node_exporter_listen_address=$(read_ini ${iniFileLoc} node_exporter_listen_address)
+
+mysql_exporter_download_url=$(read_ini ${iniFileLoc} mysql_exporter_download_url)
+mysql_exporter_download_name=$(read_ini ${iniFileLoc} mysql_exporter_download_name)
+mysql_exporter_download_prefix=$(read_ini ${iniFileLoc} mysql_exporter_download_prefix)
+mysql_exporter_listen_address=$(read_ini ${iniFileLoc} mysql_exporter_listen_address)
 
 ##############################################################
 # Create dir and enter
@@ -72,3 +80,16 @@ mkdir ${monitor_exporters_install_dir}
 wget ${node_exporter_download_url}
 tar -zxvf ${node_exporter_download_name}
 cp ${node_exporter_download_prefix}/node_exporter ${monitor_exporters_install_dir}
+
+########################################################
+# Install Mysql Exporter
+########################################################
+
+# !! before doing this, mysql must be started !!
+chmod u+x ./create_account.sh
+./create_account.sh
+
+wget ${mysql_exporter_download_url}
+tar -zxvf ${mysql_exporter_download_name}
+cp ${mysql_exporter_download_prefix}/mysqld_exporter ${monitor_exporters_install_dir}
+
