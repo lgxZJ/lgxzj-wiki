@@ -42,6 +42,9 @@ mysql_exporter_download_name=$(read_ini ${iniFileLoc} mysql_exporter_download_na
 mysql_exporter_download_prefix=$(read_ini ${iniFileLoc} mysql_exporter_download_prefix)
 mysql_exporter_listen_address=$(read_ini ${iniFileLoc} mysql_exporter_listen_address)
 
+php_fpm_exporter_download_url=$(read_ini ${iniFileLoc} php_fpm_exporter_download_url)
+php_fpm_exporter_download_name=$(read_ini ${iniFileLoc} php_fpm_exporter_download_name)
+
 ##############################################################
 # Create dir and enter
 ##############################################################
@@ -93,3 +96,9 @@ wget ${mysql_exporter_download_url}
 tar -zxvf ${mysql_exporter_download_name}
 cp ${mysql_exporter_download_prefix}/mysqld_exporter ${monitor_exporters_install_dir}
 
+########################################################
+# Install PHP-FPM Exporter
+########################################################
+wget ${php_fpm_exporter_download_url}
+chmod u+x ./${php_fpm_exporter_download_name}
+cp ./${php_fpm_exporter_download_name} ${monitor_exporters_install_dir}/php_fpm_exporter

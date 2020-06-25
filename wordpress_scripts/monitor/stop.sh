@@ -18,3 +18,11 @@ if [ -z "${mysqld_exporter_pid}" ]; then
 else
     kill -s SIGTERM ${mysqld_exporter_pid}
 fi
+
+php_fpm_exporter_pid=`pgrep -f php_fpm_exporter`
+if [ -z "${php_fpm_exporter_pid}" ]; then
+    echo "php_fpm_exporter not active, no need to kill"
+else
+    kill -s SIGTERM ${php_fpm_exporter_pid}
+fi
+    
