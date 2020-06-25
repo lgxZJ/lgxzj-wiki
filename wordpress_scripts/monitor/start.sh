@@ -22,6 +22,7 @@ mysql_exporter_account=$(read_ini ${iniFileLoc} mysql_exporter_account)
 mysql_exporter_password=$(read_ini ${iniFileLoc} mysql_exporter_password)
 mysql_socket_file_loc=$(read_ini ${iniFileLoc} mysql_socket_file_loc)
 mysql_exporter_listen_address=$(read_ini ${iniFileLoc} mysql_exporter_listen_address)
+php_fpm_exporter_listen_address=$(read_ini ${iniFileLoc} php_fpm_exporter_listen_address)
 
 ## start prometheus
 cd ${monitor_prometheus_install_dir}
@@ -38,4 +39,4 @@ export DATA_SOURCE_NAME="${mysql_exporter_account}:${mysql_exporter_password}@un
 nohup ./mysqld_exporter --web.listen-address=":${mysql_exporter_listen_address}" --web.telemetry-path="/metrics" >> mysqld_exporter.log &
 
 # php_fpm exporter
-nohup ./php_fpm_exporter --addr=127.0.0.1:9102 --fastcgi=tcp://127.0.0.1:9000 >> php_fpm_exporter.log &
+nohup ./php_fpm_exporter --addr=127.0.0.1:${php_fpm_exporter_listen_address} --fastcgi=tcp://127.0.0.1:9000 >> php_fpm_exporter.log &
