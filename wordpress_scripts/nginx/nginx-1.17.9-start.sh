@@ -23,6 +23,8 @@ fi
 iniFileLoc=../lgxzj.ini
 nginx_install_dir=$(read_ini ${iniFileLoc} install_nginx_dir)
 blog_domain=$(read_ini ${iniFileLoc} blog_domain)
+nginx_prometheus_metric_listen_address=$(read_ini ${iniFileLoc} nginx_prometheus_metric_listen_address)
+install_nginx_lua_prometheus_dir=$(read_ini ${iniFileLoc} install_nginx_lua_prometheus_dir)
 
 ##############################################################
 # Generate conf file using templates
@@ -31,6 +33,8 @@ rm -f ./nginx.conf
 cp ./nginx.conf.template ./nginx.conf
 replace_str ./nginx.conf '${blog_domain}' ${blog_domain}
 replace_str ./nginx.conf '${install_nginx_dir}' ${nginx_install_dir}
+replace_str ./nginx.conf '${install_nginx_lua_prometheus_dir}' ${install_nginx_lua_prometheus_dir}
+replace_str ./nginx.conf '${nginx_prometheus_metric_listen_address}' ${nginx_prometheus_metric_listen_address~}
 
 ##############################################################
 # Start nginx
