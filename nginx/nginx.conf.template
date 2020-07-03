@@ -66,8 +66,15 @@ http {
     #gzip  on;
 
     server {
+        listen		80;
+	server_name	${react_domain};
+	index		index.html;
+	root		${install_react_dir};
+    }
+
+    server {
         listen       80;
-	server_name  ${blog_domain}
+	server_name  ${blog_domain};
 	client_max_body_size 100M;
 
         #charset koi8-r;
