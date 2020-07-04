@@ -43,6 +43,6 @@ export LUAJIT_LIB=${install_luajit_dir}/lib
 export LUAJIT_INC=${install_luajit_dir}/include/luajit-2.1
 
 cd ${nginx_download_prefix}
-./configure --prefix=${nginx_install_dir} --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" --add-module=${install_ndk_dir} --add-module=${install_lua_module_dir}
+./configure --prefix=${nginx_install_dir} --with-ld-opt="-Wl,-rpath,${LUAJIT_LIB}" --add-module=${install_ndk_dir} --add-module=${install_lua_module_dir} --with-stream
 make
 make install

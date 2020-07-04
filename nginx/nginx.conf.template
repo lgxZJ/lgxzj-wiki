@@ -72,6 +72,18 @@ http {
 	root		${install_react_dir};
     }
 
+    upstream prometheus_server {
+    	server		       localhost:9090;
+    }
+
+    server {
+        listen			80;
+	server_name		${metric_domain};
+	proxy_connect_timeout	8s;
+	proxy_timeout		24h;
+	proxy_pass		prometheus_server;
+    }
+
     server {
         listen       80;
 	server_name  ${blog_domain};
