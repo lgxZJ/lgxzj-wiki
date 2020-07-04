@@ -29,6 +29,8 @@ install_nginx_lua_prometheus_dir=$(read_ini ${iniFileLoc} install_nginx_lua_prom
 react_domain=$(read_ini ${iniFileLoc} react_domain)
 install_react_dir=$(read_ini ${iniFileLoc} install_react_dir)
 
+metric_domain=$(read_ini ${iniFileLoc} metric_domain)
+
 ##############################################################
 # Generate conf file using templates
 ##############################################################
@@ -42,6 +44,8 @@ replace_str ./nginx.conf '${nginx_prometheus_metric_listen_address}' ${nginx_pro
 
 replace_str ./nginx.conf '${react_domain}' ${react_domain}
 replace_str ./nginx.conf '${install_react_dir}' ${install_react_dir}
+
+replace_str ./nginx.conf '${metric_domain}' ${metric_domain}
 
 ##############################################################
 # Create react deploy dir
