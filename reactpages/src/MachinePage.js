@@ -17,6 +17,7 @@ class MachinePage extends React.Component {
             xFieldName: "x",
             yFieldName: "y",
             seriesField: 'type',
+            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
             chartDataArray: [
                 [
                     {
@@ -24,7 +25,6 @@ class MachinePage extends React.Component {
                         type: 'cpu',
                         title: "CPU 负载",
                         desc: "按cpu分组的负载率",
-                        url: "http://metric.lgxzj.wiki/api/v1/query_range",
                         yAxis: {
                             visible: true,
                             min: 0,
@@ -37,7 +37,6 @@ class MachinePage extends React.Component {
                         type: 'mem',
                         title: "内存 负载",
                         desc: "内存资源使用情况，单位MB",
-                        url: "http://metric.lgxzj.wiki/api/v1/query_range",
                         yAxis: {
                             visible: true,
                             min: 0,
@@ -50,8 +49,6 @@ class MachinePage extends React.Component {
                         type: 'net_io',
                         title: "网络 IO",
                         desc: "网络收发负载，单位KB",
-                        url: "http://metric.lgxzj.wiki/api/v1/query_range",
-                        
                     },
                 ],
                 [
@@ -60,7 +57,6 @@ class MachinePage extends React.Component {
                         type: 'disk_io',
                         title: "磁盘 IO",
                         desc: "磁盘读写负载，单位KB",
-                        url: "http://metric.lgxzj.wiki/api/v1/query_range",
                         // yAxis: {
                         //     visible: true,
                         //     min: 0,
@@ -69,13 +65,16 @@ class MachinePage extends React.Component {
                         // },
                     },
                     {
-                        pointsData: [
-    
-                        ],
+                        pointsData: [],
                         type: 'disk_cap',
                         title: "磁盘 容量",
-                        desc: "",
-                        url: "",
+                        desc: "磁盘使用情况，单位GB",
+                        yAxis: {
+                            visible: true,
+                            min: 0,
+                            max: 100,
+                            tickCount: 5,
+                        },
                     },
                 ]
             ],
@@ -122,7 +121,7 @@ class MachinePage extends React.Component {
 
     fetchCpuData(row, rowIdx, col, colIdx) {
         let timeRange = this.genQueryTimeRange();
-        axios.get(col.url, {
+        axios.get(this.state.queryUrl, {
             params: {
                 ...timeRange,
                 query:  "100 - (irate(node_cpu_seconds_total{mode=\"idle\"}[15s]) * 100)"
@@ -164,7 +163,7 @@ class MachinePage extends React.Component {
         inputs.forEach((input) => {
             totalPromise.push(
                 axios.get(
-                    col.url,
+                    this.state.queryUrl,
                     {
                         params: {
                             ...timeRange,
@@ -196,7 +195,10 @@ class MachinePage extends React.Component {
 
                             let label = inputs[resIdx].label;
                             if (labelAppender != null) {
-                                label += ("_" + labelAppender(dataEle));
+                                let appendLabelPart = labelAppender(dataEle)
+                                if (appendLabelPart != null) {
+                                    label += ("_" + appendLabelPart);
+                                }
                             }
 
                             totalResult.push(
@@ -252,7 +254,12 @@ class MachinePage extends React.Component {
             colIdx, 
             inputs, 
             null,
-            (dataEle) => dataEle.metric.device);
+            (dataEle) => {
+                if (dataEle.metric.device != null) {
+                    return dataEle.metric.device;
+                }
+                return null;
+            });
     }
 
     fetchDiskIOData(row, rowIdx, col, colIdx) {
@@ -264,7 +271,11 @@ class MachinePage extends React.Component {
             {
                 query:      "irate(node_disk_read_bytes_total[15s])",
                 label:      "read",
-            }
+            },
+            {
+                query:      "irate(node_textfile_scrape_error[15s])",
+                label:      "open_err",
+            },
         ]
         this.fetchDiskIODataParallel(row, rowIdx, col, colIdx, inputs);
     }
@@ -273,11 +284,19 @@ class MachinePage extends React.Component {
         const inputs = [
             {
                 query:    "irate(node_network_receive_bytes_total[15s])",
-                label:    "read",
+                label:    "recv",
+            },
+            {
+                query:    "irate(node_network_receive_errs_total[15s])",
+                label:    "recv_err",
             },
             {
                 query:      "irate(node_network_transmit_bytes_total[15s])",
-                label:      "written",
+                label:      "sent",
+            },
+            {
+                query:      "irate(node_network_transmit_errs_total[15s])",
+                label:      "sent_err",
             }
         ]
 
@@ -292,14 +311,40 @@ class MachinePage extends React.Component {
         );
     }
 
+    fetchDiskCapacityData(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:    "node_filesystem_size_bytes",
+                label:    "size_total",
+            },
+            {
+                query:    "node_filesystem_size_bytes-node_filesystem_avail_bytes",
+                label:    "size_used",
+            },
+            
+        ]
+
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => Math.floor(value / 1024 / 1024 / 1024),
+            (dataEle) => { console.log("disk_cap", dataEle.metric.device); return dataEle.metric.device;}
+        );
+    }
+
     fetchData() {
         this.state.chartDataArray.forEach((row, rowIdx) => {
             row.forEach((col, colIdx) => {
                 switch (col.type) {
-                    case "cpu":         this.fetchCpuData(row, rowIdx, col, colIdx);        break;
-                    case "mem":         this.fetchMemData(row, rowIdx, col, colIdx);        break;
-                    case "disk_io":     this.fetchDiskIOData(row, rowIdx, col, colIdx);     break;
-                    case "net_io":      this.fetchNetworkIOData(row, rowIdx, col, colIdx);  break;
+                    case "cpu":         this.fetchCpuData(row, rowIdx, col, colIdx);            break;
+                    case "mem":         this.fetchMemData(row, rowIdx, col, colIdx);            break;
+                    case "disk_io":     this.fetchDiskIOData(row, rowIdx, col, colIdx);         break;
+                    case "disk_cap":    this.fetchDiskCapacityData(row, rowIdx, col, colIdx);   break;
+                    case "net_io":      this.fetchNetworkIOData(row, rowIdx, col, colIdx);      break;
+                    
                     
                     default:        break;
                 }
