@@ -8,6 +8,7 @@ class LineChart extends React.Component {
         const pointsData = this.props.pointsData;
         const chartTitle = this.props.title;
         const chartDesc  = this.props.desc;
+        const seriesField = this.props.seriesField;
 
         const config = {
             title: {
@@ -20,6 +21,7 @@ class LineChart extends React.Component {
             },
             xField: xFieldName,
             yField: yFieldName,
+            seriesField,
             data: pointsData,
 
             padding: 'auto',
@@ -30,14 +32,16 @@ class LineChart extends React.Component {
             },
             point: {
                 visible: true,
-                size: 5,
-                shape: 'diamond',
+                size: 2,
+                shape: 'circle',
                 style: {
                     fill: 'white',
                     stroke: '#2593fc',
                     lineWidth: 2,
                 },
             },
+            legend: { position: 'right-top' },
+            yAxis: this.props.yAxis,
         };
 
         return (
