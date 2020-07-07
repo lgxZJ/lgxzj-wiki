@@ -26,3 +26,9 @@ else
     kill -s SIGTERM ${php_fpm_exporter_pid}
 fi
     
+pushgateway_pid=`pgrep -f pushgateway`
+if [ -z "${pushgateway_pid}" ]; then
+    echo "pushgateway not active, no need to kill"
+else
+    kill -s SIGTERM ${pushgateway_pid}
+fi

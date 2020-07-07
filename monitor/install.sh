@@ -1,4 +1,4 @@
-##############################################################
+V##############################################################
 # Load inf funcs
 ##############################################################
 if [ ! -f "../ini_reader.sh" ]; then
@@ -45,6 +45,15 @@ mysql_exporter_listen_address=$(read_ini ${iniFileLoc} mysql_exporter_listen_add
 php_fpm_exporter_download_url=$(read_ini ${iniFileLoc} php_fpm_exporter_download_url)
 php_fpm_exporter_download_name=$(read_ini ${iniFileLoc} php_fpm_exporter_download_name)
 
+process_exporter_download_name=$(read_ini ${iniFileLoc} process_exporter_download_name)
+process_exporter_download_url=$(read_ini ${iniFileLoc} process_exporter_download_url)
+process_exporter_download_prefix=$(read_ini ${iniFileLoc} process_exporter_download_prefix)
+
+pushgateway_download_url=$(read_ini ${iniFileLoc} pushgateway_download_url)
+pushgateway_download_name=$(read_ini ${iniFileLoc} pushgateway_download_name)
+pushgateway_download_prefix=$(read_ini ${iniFileLoc} pushgateway_download_prefix)
+monitor_pushgateway_install_dir=$(read_ini ${iniFileLoc} monitor_pushgateway_install_dir)
+
 ##############################################################
 # Create dir and enter
 ##############################################################
@@ -70,6 +79,16 @@ cp -f ${cur_dir}/prometheus.template prometheus.yml
 replace_str ./prometheus.yml '${node_exporter_listen_address}' ${node_exporter_listen_address}
 replace_str ./prometheus.yml '${prometheus_listen_address}' ${prometheus_listen_address}
 cp -f prometheus.yml ${monitor_prometheus_install_dir}
+
+########################################################
+# Install Pushgateway
+########################################################
+rm -rf ${monitor_pushgateway_install_dir}
+mkdir ${monitor_pushgateway_install_dir}
+
+wget ${pushgateway_download_url}
+tar -zxvf ${pushgateway_download_name}
+cp ./${pushgateway_download_prefix}/pushgateway ${monitor_pushgateway_install_dir}
 
 #######################################################
 # Create Exporter dir
@@ -102,3 +121,12 @@ cp ${mysql_exporter_download_prefix}/mysqld_exporter ${monitor_exporters_install
 wget ${php_fpm_exporter_download_url}
 chmod u+x ./${php_fpm_exporter_download_name}
 cp ./${php_fpm_exporter_download_name} ${monitor_exporters_install_dir}/php_fpm_exporter
+
+########################################################
+# Install Process-Exporter
+########################################################
+#wget ${process_exporter_download_url}
+#tar -zxvf ${process_exporter_download_name}
+#mv ./${process_exporter_download_prefix}/process-exporter ./${process_exporter_download_prefix}/process_exporter
+#cp ./${process_exporter_download_prefix}/process_exporter ${monitor_exporters_install_dir}/process_exporter
+
