@@ -28,6 +28,11 @@ scrape_configs:
     static_configs:
     - targets: ['localhost:${prometheus_listen_address}']
 
+  - job_name: 'pushgateway'
+    honor_labels: true
+    static_configs:
+    - targets: ['localhost:${pushgateway_listen_address}']
+
   - job_name: 'node_exporter'
     static_configs:
     - targets: ['localhost:${node_exporter_listen_address}']

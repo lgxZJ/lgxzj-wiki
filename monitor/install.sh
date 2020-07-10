@@ -53,6 +53,19 @@ pushgateway_download_url=$(read_ini ${iniFileLoc} pushgateway_download_url)
 pushgateway_download_name=$(read_ini ${iniFileLoc} pushgateway_download_name)
 pushgateway_download_prefix=$(read_ini ${iniFileLoc} pushgateway_download_prefix)
 monitor_pushgateway_install_dir=$(read_ini ${iniFileLoc} monitor_pushgateway_install_dir)
+pushgateway_listen_address=$(read_ini ${iniFileLoc} pushgateway_listen_address)
+ps_pusher_top_n=$(read_ini ${iniFileLoc} ps_pusher_top_n)
+ps_pusher_sleep_second=$(read_ini ${iniFileLoc} ps_pusher_sleep_second)
+
+##############################################################
+# Translate `pushers` into runnable scripts
+##############################################################
+rm -rf ps_pusher.sh
+cp ps_pusher.template ps_pusher.sh
+replace_str ./ps_pusher.sh '${pushgateway_listen_address}' ${pushgateway_listen_address}
+replace_str ./ps_pusher.sh '${ps_pusher_top_n}' ${ps_pusher_top_n}
+replace_str ./ps_pusher.sh '${ps_pusher_sleep_second}' ${ps_pusher_sleep_second}
+chmod u+x ps_pusher.sh
 
 ##############################################################
 # Create dir and enter
@@ -78,6 +91,7 @@ mv ${prometheus_download_prefix} ${monitor_prometheus_install_dir}
 cp -f ${cur_dir}/prometheus.template prometheus.yml
 replace_str ./prometheus.yml '${node_exporter_listen_address}' ${node_exporter_listen_address}
 replace_str ./prometheus.yml '${prometheus_listen_address}' ${prometheus_listen_address}
+replace_str ./prometheus.yml '${pushgateway_listen_address}' ${pushgateway_listen_address}
 cp -f prometheus.yml ${monitor_prometheus_install_dir}
 
 ########################################################

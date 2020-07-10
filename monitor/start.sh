@@ -1,4 +1,4 @@
-##############################################################
+.##############################################################
 # Load inf funcs
 ##############################################################
 if [ ! -f "../ini_reader.sh" ]; then
@@ -32,7 +32,7 @@ nohup ./prometheus --web.listen-address=":${prometheus_listen_address}" --config
 
 # pushgateway
 cd ${monitor_pushgateway_install_dir}
-nohup ./pushgateway --web.listen-address=":${pushgateway_listen_address}"  --web.telemetry-path="/metrics" >> pushgateway.log &
+nohup ./pushgateway --web.listen-address=":${pushgateway_listen_address}"  --web.telemetry-path="/metrics" --web.enable-admin-api >> pushgateway.log &
 
 ## start exporters
 cd ${monitor_exporters_install_dir}

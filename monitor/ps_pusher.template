@@ -1,0 +1,58 @@
+topN=${ps_pusher_top_n}
+sleep_time=${ps_pusher_sleep_second}
+
+while [ ture ]
+do
+    sleep ${ps_pusher_sleep_second}
+
+    echo ""
+    echo "start deleting all pushgateway metrics"
+    instance="localhost"
+    curl -XPUT http://localhost:${pushgateway_listen_address}/api/v1/admin/wipe
+
+    echo "start collecting cpu metrics"echo "start collecting cpu metrics"
+    count=1
+    ps -Ao user,comm,pid,pcpu,pmem --sort=-pcpu | while read line
+    do
+        count=$((count+1))
+        if [ ${count} -gt ${topN} ]; then
+           break;
+        fi
+    
+        sections=( $line )
+ 
+        cpu=${sections[3]}
+        mem=${sections[4]}
+        cmd=${sections[1]}
+
+	batch_metrics="# TYPE ps_pusher_cpu gauge
+ps_pusher_cpu ${cpu}
+"
+	curl -XPOST http://localhost:${pushgateway_listen_address}/metrics/job/ps_pusher/instance/${instance}/proc/${cmd} -H "Content-Type: text\
+/plain" --data "${batch_metrics}"
+    done
+
+    echo "start collecting mem metrics"
+    count=1
+    ps -Ao user,comm,pid,pcpu,pmem --sort -rss | while read line
+    do
+        count=$(( count + 1 ))
+        if [ ${count} -gt ${topN} ]; then
+    	    break;
+        fi
+    
+        sections=( $line )
+
+        cpu=${sections[3]}
+        mem=${sections[4]}
+        cmd=${sections[1]}
+
+	batch_metrics="# TYPE ps_pusher_mem gauge
+ps_pusher_mem ${mem}
+"
+        curl -XPOST http://localhost:9091/metrics/job/ps_pusher/instance/${instance}/proc/${cmd} --data "${batch_metric\
+s}"
+        echo "  one metric ${batch_metrics}"
+    done
+
+done
