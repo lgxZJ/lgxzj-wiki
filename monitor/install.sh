@@ -1,4 +1,4 @@
-V##############################################################
+##############################################################
 # Load inf funcs
 ##############################################################
 if [ ! -f "../ini_reader.sh" ]; then
@@ -54,18 +54,35 @@ pushgateway_download_name=$(read_ini ${iniFileLoc} pushgateway_download_name)
 pushgateway_download_prefix=$(read_ini ${iniFileLoc} pushgateway_download_prefix)
 monitor_pushgateway_install_dir=$(read_ini ${iniFileLoc} monitor_pushgateway_install_dir)
 pushgateway_listen_address=$(read_ini ${iniFileLoc} pushgateway_listen_address)
+pusher_install_dir=$(read_ini ${iniFileLoc} pusher_install_dir)
 ps_pusher_top_n=$(read_ini ${iniFileLoc} ps_pusher_top_n)
 ps_pusher_sleep_second=$(read_ini ${iniFileLoc} ps_pusher_sleep_second)
+ps_pusher_pid_file_loc=$(read_ini ${iniFileLoc} ps_pusher_pid_file_loc)
 
 ##############################################################
-# Translate `pushers` into runnable scripts
+# Translate stop.template into runnable scripts
 ##############################################################
+rm -f stop.sh
+cp stop.template stop.sh
+replace_str ./stop.sh '${ps_pusher_pid_file_loc}' ${ps_pusher_pid_file_loc}
+replace_str ./stop.sh '${pusher_install_dir}' ${pusher_install_dir}
+chmod u+x ./stop.sh
+
+##############################################################
+# Translate `pushers` into runnable scripts and Install
+##############################################################
+rm -rf ${pusher_install_dir}
+mkdir ${pusher_install_dir}
+
 rm -rf ps_pusher.sh
 cp ps_pusher.template ps_pusher.sh
 replace_str ./ps_pusher.sh '${pushgateway_listen_address}' ${pushgateway_listen_address}
 replace_str ./ps_pusher.sh '${ps_pusher_top_n}' ${ps_pusher_top_n}
 replace_str ./ps_pusher.sh '${ps_pusher_sleep_second}' ${ps_pusher_sleep_second}
+replace_str ./ps_pusher.sh '${ps_pusher_pid_file_loc}' ${ps_pusher_pid_file_loc}
 chmod u+x ps_pusher.sh
+
+local_pushers_dir=`pwd`
 
 ##############################################################
 # Create dir and enter
@@ -75,6 +92,13 @@ cur_dir=`pwd`
 rm -rf ${monitor_install_dir}
 mkdir ${monitor_install_dir}
 cd ${monitor_install_dir}
+
+#######################################################
+# Install pushers
+#######################################################
+rm -rf ${pusher_install_dir}
+mkdir ${pusher_install_dir}
+cp ${local_pushers_dir}/ps_pusher.sh ${pusher_install_dir}
 
 ########################################################
 # Install Prometheus

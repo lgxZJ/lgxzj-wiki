@@ -1,8 +1,13 @@
 topN=${ps_pusher_top_n}
 sleep_time=${ps_pusher_sleep_second}
+pid_file=${ps_pusher_pid_file_loc}
 
 while [ ture ]
 do
+    if [ ! -f ${pid_file} ]; then
+        echo "$BASHPID" >> ./ps_pusher.pid
+    fi
+
     sleep ${ps_pusher_sleep_second}
 
     echo ""

@@ -1,4 +1,4 @@
-.##############################################################
+##############################################################
 # Load inf funcs
 ##############################################################
 if [ ! -f "../ini_reader.sh" ]; then
@@ -17,6 +17,7 @@ monitor_install_dir=$(read_ini ${iniFileLoc} monitor_install_dir)
 monitor_prometheus_install_dir=$(read_ini ${iniFileLoc} monitor_prometheus_install_dir)
 monitor_exporters_install_dir=$(read_ini ${iniFileLoc} monitor_exporters_install_dir)
 monitor_pushgateway_install_dir=$(read_ini ${iniFileLoc} monitor_pushgateway_install_dir)
+pusher_install_dir=$(read_ini ${iniFileLoc} pusher_install_dir)
 node_exporter_listen_address=$(read_ini ${iniFileLoc} node_exporter_listen_address)
 prometheus_listen_address=$(read_ini ${iniFileLoc} prometheus_listen_address)
 pushgateway_listen_address=$(read_ini ${iniFileLoc} pushgateway_listen_address)
@@ -33,6 +34,10 @@ nohup ./prometheus --web.listen-address=":${prometheus_listen_address}" --config
 # pushgateway
 cd ${monitor_pushgateway_install_dir}
 nohup ./pushgateway --web.listen-address=":${pushgateway_listen_address}"  --web.telemetry-path="/metrics" --web.enable-admin-api >> pushgateway.log &
+
+## pushers
+cd ${pusher_install_dir}
+nohup ./ps_pusher.sh >> ps_pusher.log &
 
 ## start exporters
 cd ${monitor_exporters_install_dir}
