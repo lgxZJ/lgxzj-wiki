@@ -10,7 +10,7 @@ do
     instance="localhost"
     curl -XPUT http://localhost:${pushgateway_listen_address}/api/v1/admin/wipe
 
-    echo "start collecting cpu metrics"echo "start collecting cpu metrics"
+    echo "start collecting cpu metrics"
     count=1
     ps -Ao user,comm,pid,pcpu,pmem --sort=-pcpu | while read line
     do
@@ -30,6 +30,7 @@ ps_pusher_cpu ${cpu}
 "
 	curl -XPOST http://localhost:${pushgateway_listen_address}/metrics/job/ps_pusher/instance/${instance}/proc/${cmd} -H "Content-Type: text\
 /plain" --data "${batch_metrics}"
+	echo "  one metric ${batch_metrics}"
     done
 
     echo "start collecting mem metrics"
