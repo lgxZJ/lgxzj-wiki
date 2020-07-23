@@ -2,6 +2,7 @@ import React from 'react';
 import { Row, Col } from 'antd';
 
 import LineChart from './LineChart';
+import BulletChart from './BulletChart';
 
 import 'antd/dist/antd.css';
 
@@ -17,12 +18,14 @@ class MachinePage extends React.Component {
             xFieldName: "x",
             yFieldName: "y",
             seriesField: 'type',
-            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
+            
             chartDataArray: [
                 [
                     {
+                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
                         pointsData: [],
                         type: 'cpu',
+                        chartType: 'line',
                         title: "CPU 负载",
                         desc: "按cpu分组的负载率",
                         yAxis: {
@@ -33,8 +36,10 @@ class MachinePage extends React.Component {
                         },
                     },
                     {
+                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
                         pointsData: [],
                         type: 'mem',
+                        chartType: 'line',
                         title: "内存 负载",
                         desc: "内存资源使用情况，单位MB",
                         yAxis: {
@@ -45,16 +50,20 @@ class MachinePage extends React.Component {
                         },
                     },
                     {
+                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
                         pointsData: [],
                         type: 'net_io',
+                        chartType: 'line',
                         title: "网络 IO",
                         desc: "网络收发负载，单位KB",
                     },
                 ],
                 [
                     {
+                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
                         pointsData: [],
                         type: 'disk_io',
+                        chartType: 'line',
                         title: "磁盘 IO",
                         desc: "磁盘读写负载，单位KB",
                         // yAxis: {
@@ -65,8 +74,10 @@ class MachinePage extends React.Component {
                         // },
                     },
                     {
+                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
                         pointsData: [],
                         type: 'disk_cap',
+                        chartType: 'line',
                         title: "磁盘 容量",
                         desc: "磁盘使用情况，单位GB",
                         yAxis: {
@@ -76,6 +87,24 @@ class MachinePage extends React.Component {
                             tickCount: 5,
                         },
                     },
+                    {
+                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                        pointsData: [],
+                        type: 'proc_top_cpu',
+                        chartType: 'bullet',
+                        title: "CPU活跃TOP10（百分比）",
+                        desc: "CPU活跃进程，单位百分比",
+                        
+                    },
+                    {
+                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                        pointsData: [],
+                        type: 'proc_top_mem',
+                        chartType: 'bullet',
+                        title: "MEM活跃TOP10（百分比）",
+                        desc: "CPU活跃进程，单位百分比",
+                        
+                    }
                 ]
             ],
         };
@@ -121,7 +150,8 @@ class MachinePage extends React.Component {
 
     fetchCpuData(row, rowIdx, col, colIdx) {
         let timeRange = this.genQueryTimeRange();
-        axios.get(this.state.queryUrl, {
+        let url = this.state.chartDataArray[rowIdx][colIdx].queryUrl;
+        axios.get(url, {
             params: {
                 ...timeRange,
                 query:  "100 - (irate(node_cpu_seconds_total{mode=\"idle\"}[15s]) * 100)"
@@ -156,14 +186,18 @@ class MachinePage extends React.Component {
             });
     }
 
+
+
     fetchDataParallel(row, rowIdx, col, colIdx, inputs, unitTranslator, labelAppender) {
         let timeRange = this.genQueryTimeRange();
+        const item = this.state.chartDataArray[rowIdx][colIdx];
+        let url = this.state.chartDataArray[rowIdx][colIdx].queryUrl;
 
         const totalPromise = [];
         inputs.forEach((input) => {
             totalPromise.push(
                 axios.get(
-                    this.state.queryUrl,
+                    url,
                     {
                         params: {
                             ...timeRange,
@@ -173,6 +207,36 @@ class MachinePage extends React.Component {
             )
         });
 
+        const eleProcessor = (dataEle, resIdx, proc, pointDate, value) => {
+            if (unitTranslator != null) {
+                value = unitTranslator(value);
+            }
+
+            let label = inputs[resIdx].label;
+            if (labelAppender != null) {
+                let appendLabelPart = labelAppender(dataEle)
+                if (appendLabelPart != null) {
+                    label += ("_" + appendLabelPart);
+                }
+            }
+            
+            switch (item.type) {
+                case 'proc_top_mem':
+                case 'proc_top_cpu':
+                    return {
+                            bulletTitle: proc,
+                            bulletMeasure: value,
+                    };
+                    
+                default:
+                    return {
+                            [this.state.xFieldName]: pointDate,
+                            [this.state.yFieldName]: value,
+                            [this.state.seriesField]:label,
+                    };
+            }
+        }
+
         Promise.all(totalPromise)
             .then((resArray) => {
                 let totalResult = [];
@@ -181,34 +245,31 @@ class MachinePage extends React.Component {
 
                 resArray.forEach((res, resIdx) => {
                     var machineResult = this.getResultFromResponse(res);
+                    
 
                     machineResult.forEach((dataEle) => {
-                        const cpuDataValues = dataEle.values;
-                        
-                        cpuDataValues.forEach((point) => {
-                            let pointDate = this.unixTimestamp2DateFormat(point[0]);
-                            let value = this.stringValue2Int(point[1]);
+                        if (item.type === 'proc_top_cpu' || item.type === 'proc_top_mem') {
+                            const proc = dataEle.metric.proc;
+                            let pointDate = this.unixTimestamp2DateFormat(dataEle.value[0]);
+                            let value = dataEle.value[1];
+
+                            totalResult.push(eleProcessor(dataEle, resIdx, proc, pointDate, value));
+                            console.log("before sort", totalResult);
+                            totalResult.sort((ele1, ele2) => {
+                                return ele1.bulletMeasure - ele2.bulletMeasure;
+                            });
+                            console.log("after sort", totalResult);
+                        } else {
+                            const itemDataValues = dataEle.values;
+                            const proc = null;
                             
-                            if (unitTranslator != null) {
-                                value = unitTranslator(value);
-                            }
-
-                            let label = inputs[resIdx].label;
-                            if (labelAppender != null) {
-                                let appendLabelPart = labelAppender(dataEle)
-                                if (appendLabelPart != null) {
-                                    label += ("_" + appendLabelPart);
-                                }
-                            }
-
-                            totalResult.push(
-                                {
-                                    [this.state.xFieldName]: pointDate,
-                                    [this.state.yFieldName]: value,
-                                    [this.state.seriesField]:label,
-                                }
-                            )
-                        })
+                            itemDataValues.forEach((point) => {
+                                let pointDate = this.unixTimestamp2DateFormat(point[0]);
+                                let value = this.stringValue2Int(point[1]);
+                                
+                                totalResult.push(eleProcessor(dataEle, resIdx, proc, pointDate, value));
+                            });
+                        }
                     });
                 })
 
@@ -311,6 +372,42 @@ class MachinePage extends React.Component {
         );
     }
 
+    fetchProcCpuTopData(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:    "ps_pusher_cpu",
+                label:    "",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null
+        );
+    }
+
+    fetchProcMemTopData(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:    "ps_pusher_mem",
+                label:    "",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null
+        );
+    }
+
     fetchDiskCapacityData(row, rowIdx, col, colIdx) {
         const inputs = [
             {
@@ -345,6 +442,8 @@ class MachinePage extends React.Component {
                     case "disk_cap":    this.fetchDiskCapacityData(row, rowIdx, col, colIdx);   break;
                     case "net_io":      this.fetchNetworkIOData(row, rowIdx, col, colIdx);      break;
                     
+                    case 'proc_top_cpu':this.fetchProcCpuTopData(row, rowIdx, col, colIdx);     break;
+                    case 'proc_top_mem':this.fetchProcMemTopData(row, rowIdx, col, colIdx);     break;
                     
                     default:        break;
                 }
@@ -364,22 +463,40 @@ class MachinePage extends React.Component {
         for (let i = 0; i < this.state.chartDataArray.length; ++i) {
             const cols = [];
             for (let j = 0; j < this.state.chartDataArray[i].length; ++j) {
-                const data = {
-                    xFieldName: this.state.xFieldName,
-                    yFieldName: this.state.yFieldName,
-                    seriesField: this.state.seriesField,
-                    pointsData: this.state.chartDataArray[i][j].pointsData,
-                    title: this.state.chartDataArray[i][j].title,
-                    desc: this.state.chartDataArray[i][j].desc,
-                    yAxis: this.state.chartDataArray[i][j].yAxis,
-                }
-
                 let colKey = "col_" + i.toString() + "_" + j.toString();
-                cols.push(
-                    <Col key={colKey} span={8} > 
-                        <LineChart {...data} />
-                    </Col>
-                )
+                let chartData = this.state.chartDataArray[i][j];
+
+                if (chartData.chartType === 'line') {
+                    const data = {
+                        xFieldName: this.state.xFieldName,
+                        yFieldName: this.state.yFieldName,
+                        seriesField: this.state.seriesField,
+                        pointsData: chartData.pointsData,
+                        title: chartData.title,
+                        desc: chartData.desc,
+                        yAxis: chartData.yAxis,
+                    }
+    
+                    
+                    cols.push(
+                        <Col key={colKey} span={8} > 
+                            <LineChart {...data} />
+                        </Col>
+                    );
+                }
+                if (chartData.chartType === 'bullet') {
+                    const config = {
+                        data: chartData.pointsData,
+                        chartTitle: chartData.title,
+                    };
+                    console.log("====", config);
+                    cols.push(
+                        <Col key={colKey} span={8} > 
+                            <BulletChart {...config} />
+                        </Col>
+                    )
+                }
+                
             }
 
             const rowKey = "row_" + i.toString();
@@ -416,7 +533,7 @@ Date.prototype.Format = function (fmt) { //author: meizz
     };
     if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
     for (var k in o)
-    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
 
