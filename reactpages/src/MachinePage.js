@@ -1,10 +1,11 @@
 import React from 'react';
-import { Row, Col } from 'antd';
+import { Row, Col,Spin } from 'antd';
 
 import LineChart from './LineChart';
 import BulletChart from './BulletChart';
 
 import 'antd/dist/antd.css';
+import './MachinePage.css';
 
 
 const axios = require('axios').default;
@@ -13,8 +14,6 @@ class MachinePage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true,
-
             xFieldName: "x",
             yFieldName: "y",
             seriesField: 'type',
@@ -34,6 +33,7 @@ class MachinePage extends React.Component {
                             max: 110,
                             tickCount: 5,
                         },
+                        loading: true,
                     },
                     {
                         queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
@@ -48,6 +48,7 @@ class MachinePage extends React.Component {
                             max: 4400,
                             tickCount: 5,
                         },
+                        loading: true,
                     },
                     {
                         queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
@@ -56,6 +57,7 @@ class MachinePage extends React.Component {
                         chartType: 'line',
                         title: "网络 IO",
                         desc: "网络收发负载，单位KB",
+                        loading: true,
                     },
                 ],
                 [
@@ -72,6 +74,7 @@ class MachinePage extends React.Component {
                         //     max: 1024 * 50,
                         //     tickCount: 5,
                         // },
+                        loading: true,
                     },
                     {
                         queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
@@ -86,24 +89,25 @@ class MachinePage extends React.Component {
                             max: 100,
                             tickCount: 5,
                         },
+                        loading: true,
                     },
                     {
                         queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
                         pointsData: [],
                         type: 'proc_top_cpu',
                         chartType: 'bullet',
-                        title: "CPU活跃TOP10（百分比）",
+                        title: "CPU活跃TOP10",
                         desc: "CPU活跃进程，单位百分比",
-                        
+                        loading: true,
                     },
                     {
                         queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
                         pointsData: [],
                         type: 'proc_top_mem',
                         chartType: 'bullet',
-                        title: "MEM活跃TOP10（百分比）",
+                        title: "MEM活跃TOP10",
                         desc: "CPU活跃进程，单位百分比",
-                        
+                        loading: true,
                     }
                 ]
             ],
@@ -111,9 +115,6 @@ class MachinePage extends React.Component {
         this.fetchData           = this.fetchData.bind(this);
         this.fetchCpuData        = this.fetchCpuData.bind(this);
         this.genQueryTimeRange   = this.genQueryTimeRange.bind(this);
-
-        const oneSecond = 3000;
-        setInterval(this.fetchData, oneSecond);
     }
 
     genQueryTimeRange() {
@@ -144,6 +145,15 @@ class MachinePage extends React.Component {
         this.setState((preState) => {
             var newState = JSON.parse(JSON.stringify(preState));
             newState.chartDataArray[rowIdx][colIdx].pointsData = data;
+            newState.chartDataArray[rowIdx][colIdx].loading = false;
+            return newState;
+        });
+    }
+
+    updateChartLoading2State(row, rowIdx, col, colIdx, loading) {
+        this.setState((preState) => {
+            var newState = JSON.parse(JSON.stringify(preState));
+            newState.chartDataArray[rowIdx][colIdx].loading = loading;
             return newState;
         });
     }
@@ -151,6 +161,9 @@ class MachinePage extends React.Component {
     fetchCpuData(row, rowIdx, col, colIdx) {
         let timeRange = this.genQueryTimeRange();
         let url = this.state.chartDataArray[rowIdx][colIdx].queryUrl;
+
+        this.updateChartLoading2State(row, rowIdx, col, colIdx, true);
+
         axios.get(url, {
             params: {
                 ...timeRange,
@@ -192,6 +205,9 @@ class MachinePage extends React.Component {
         let timeRange = this.genQueryTimeRange();
         const item = this.state.chartDataArray[rowIdx][colIdx];
         let url = this.state.chartDataArray[rowIdx][colIdx].queryUrl;
+
+        let loading  = true;
+        this.updateChartLoading2State(row, rowIdx, col, colIdx, loading);
 
         const totalPromise = [];
         inputs.forEach((input) => {
@@ -241,8 +257,6 @@ class MachinePage extends React.Component {
             .then((resArray) => {
                 let totalResult = [];
 
-                console.log("resArray", resArray);
-
                 resArray.forEach((res, resIdx) => {
                     var machineResult = this.getResultFromResponse(res);
                     
@@ -254,11 +268,6 @@ class MachinePage extends React.Component {
                             let value = dataEle.value[1];
 
                             totalResult.push(eleProcessor(dataEle, resIdx, proc, pointDate, value));
-                            console.log("before sort", totalResult);
-                            totalResult.sort((ele1, ele2) => {
-                                return ele1.bulletMeasure - ele2.bulletMeasure;
-                            });
-                            console.log("after sort", totalResult);
                         } else {
                             const itemDataValues = dataEle.values;
                             const proc = null;
@@ -273,6 +282,25 @@ class MachinePage extends React.Component {
                     });
                 })
 
+                if (item.type === 'proc_top_cpu' || item.type === 'proc_top_mem') {
+                    console.log("before update", totalResult);
+                    totalResult.sort((ele1, ele2) => {
+                        return ele2.bulletMeasure - ele1.bulletMeasure;
+                    });
+                    // if (totalResult.length < 10) {
+                    //     let j = 0;
+                    //     let len = 10 - totalResult.length;
+                    //     for (j = 0; j < len; ++j) {
+                    //         totalResult.push({
+                    //             bulletTitle: '无',
+                    //             bulletMeasure: 0,
+                    //         });
+                    //     }
+                    // }
+                    console.log("after update", totalResult);
+                }
+                
+                
                 this.updateChartData2State(row, rowIdx, col, colIdx, totalResult);
             })
             .catch((err) => {
@@ -428,7 +456,7 @@ class MachinePage extends React.Component {
             colIdx, 
             inputs, 
             (value) => Math.floor(value / 1024 / 1024 / 1024),
-            (dataEle) => { console.log("disk_cap", dataEle.metric.device); return dataEle.metric.device;}
+            (dataEle) => { return dataEle.metric.device;}
         );
     }
 
@@ -453,6 +481,9 @@ class MachinePage extends React.Component {
 
     componentDidMount() {
         this.fetchData();
+
+        const oneSecond = 3000;
+        setInterval(this.fetchData, oneSecond);
     }
     componentWillUnmount() {
         
@@ -465,6 +496,7 @@ class MachinePage extends React.Component {
             for (let j = 0; j < this.state.chartDataArray[i].length; ++j) {
                 let colKey = "col_" + i.toString() + "_" + j.toString();
                 let chartData = this.state.chartDataArray[i][j];
+                let comRef = null;
 
                 if (chartData.chartType === 'line') {
                     const data = {
@@ -480,7 +512,7 @@ class MachinePage extends React.Component {
                     
                     cols.push(
                         <Col key={colKey} span={8} > 
-                            <LineChart {...data} />
+                            { chartData.loading ? <Spin><LineChart {...data} /></Spin> : <LineChart {...data} /> }
                         </Col>
                     );
                 }
@@ -488,15 +520,16 @@ class MachinePage extends React.Component {
                     const config = {
                         data: chartData.pointsData,
                         chartTitle: chartData.title,
+                        chartDesc: chartData.desc,
                     };
-                    console.log("====", config);
                     cols.push(
                         <Col key={colKey} span={8} > 
-                            <BulletChart {...config} />
+                            { chartData.loading ? <Spin><BulletChart {...config} /></Spin> : <BulletChart {...config} /> }
                         </Col>
                     )
                 }
                 
+                chartData.comRef = comRef;
             }
 
             const rowKey = "row_" + i.toString();
