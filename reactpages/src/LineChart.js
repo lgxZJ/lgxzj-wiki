@@ -12,7 +12,7 @@ class LineChart extends React.Component {
 
         const config = {
             title: {
-                visible: true,
+                visible: false,
                 text: chartTitle,
             },
             description: {
@@ -37,7 +37,7 @@ class LineChart extends React.Component {
                 style: {
                     fill: 'white',
                     stroke: '#2593fc',
-                    lineWidth: 2,
+                    lineWidth: 1,
                 },
             },
             legend: { position: 'right-top' },

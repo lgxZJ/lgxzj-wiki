@@ -19,7 +19,7 @@ class BulletChart extends React.Component {
       
       const config = {
           title: {
-            visible: true,
+            visible: false,
             text: this.props.chartTitle,
           },
           description: {
@@ -28,7 +28,7 @@ class BulletChart extends React.Component {
           },
           data: configData,
           rangeMax,
-          rangeColors: ['#FFB1AC', '#FFDBA2', '#B4EBBF'],
+          rangeColors: ['#B4EBBF', '#FFDBA2', '#FFB1AC'],
           // legend: {
           //   custom: true,
           //   items: [

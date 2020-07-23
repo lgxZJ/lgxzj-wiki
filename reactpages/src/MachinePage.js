@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col,Spin } from 'antd';
+import { Row, Col,Spin, Collapse, Card } from 'antd';
 
 import LineChart from './LineChart';
 import BulletChart from './BulletChart';
@@ -7,7 +7,7 @@ import BulletChart from './BulletChart';
 import 'antd/dist/antd.css';
 import './MachinePage.css';
 
-
+const { Panel } = Collapse;
 const axios = require('axios').default;
 
 class MachinePage extends React.Component {
@@ -19,97 +19,116 @@ class MachinePage extends React.Component {
             seriesField: 'type',
             
             chartDataArray: [
-                [
-                    {
-                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
-                        pointsData: [],
-                        type: 'cpu',
-                        chartType: 'line',
-                        title: "CPU 负载",
-                        desc: "按cpu分组的负载率",
-                        yAxis: {
-                            visible: true,
-                            min: 0,
-                            max: 110,
-                            tickCount: 5,
+                {
+                    panelTitle: 'Cpu & Mem',
+                    chartConfigs: [
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
+                            pointsData: [],
+                            type: 'cpu',
+                            chartType: 'line',
+                            title: "CPU 负载",
+                            desc: "按cpu分组的负载率",
+                            yAxis: {
+                                visible: true,
+                                min: 0,
+                                max: 110,
+                                tickCount: 5,
+                            },
+                            loading: true,
                         },
-                        loading: true,
-                    },
-                    {
-                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
-                        pointsData: [],
-                        type: 'mem',
-                        chartType: 'line',
-                        title: "内存 负载",
-                        desc: "内存资源使用情况，单位MB",
-                        yAxis: {
-                            visible: true,
-                            min: 0,
-                            max: 4400,
-                            tickCount: 5,
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
+                            pointsData: [],
+                            type: 'mem',
+                            chartType: 'line',
+                            title: "内存 负载",
+                            desc: "内存资源使用情况，单位MB",
+                            yAxis: {
+                                visible: true,
+                                min: 0,
+                                max: 4400,
+                                tickCount: 5,
+                            },
+                            loading: true,
                         },
-                        loading: true,
-                    },
-                    {
-                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
-                        pointsData: [],
-                        type: 'net_io',
-                        chartType: 'line',
-                        title: "网络 IO",
-                        desc: "网络收发负载，单位KB",
-                        loading: true,
-                    },
-                ],
-                [
-                    {
-                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
-                        pointsData: [],
-                        type: 'disk_io',
-                        chartType: 'line',
-                        title: "磁盘 IO",
-                        desc: "磁盘读写负载，单位KB",
-                        // yAxis: {
-                        //     visible: true,
-                        //     min: 0,
-                        //     max: 1024 * 50,
-                        //     tickCount: 5,
-                        // },
-                        loading: true,
-                    },
-                    {
-                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
-                        pointsData: [],
-                        type: 'disk_cap',
-                        chartType: 'line',
-                        title: "磁盘 容量",
-                        desc: "磁盘使用情况，单位GB",
-                        yAxis: {
-                            visible: true,
-                            min: 0,
-                            max: 100,
-                            tickCount: 5,
+                        
+                    ],
+                },
+                {
+                    panelTitle: 'Network',
+                    chartConfigs: [
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
+                            pointsData: [],
+                            type: 'net_io',
+                            chartType: 'line',
+                            title: "网络 IO",
+                            desc: "网络收发负载，单位KB",
+                            loading: true,
                         },
-                        loading: true,
-                    },
-                    {
-                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
-                        pointsData: [],
-                        type: 'proc_top_cpu',
-                        chartType: 'bullet',
-                        title: "CPU活跃TOP10",
-                        desc: "CPU活跃进程，单位百分比",
-                        loading: true,
-                    },
-                    {
-                        queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
-                        pointsData: [],
-                        type: 'proc_top_mem',
-                        chartType: 'bullet',
-                        title: "MEM活跃TOP10",
-                        desc: "CPU活跃进程，单位百分比",
-                        loading: true,
-                    }
-                ]
+                    ],
+                },
+                {
+                    panelTitle: 'Disk IO & Caps',
+                    chartConfigs: [
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
+                            pointsData: [],
+                            type: 'disk_io',
+                            chartType: 'line',
+                            title: "磁盘 IO",
+                            desc: "磁盘读写负载，单位KB",
+                            // yAxis: {
+                            //     visible: true,
+                            //     min: 0,
+                            //     max: 1024 * 50,
+                            //     tickCount: 5,
+                            // },
+                            loading: true,
+                        },
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
+                            pointsData: [],
+                            type: 'disk_cap',
+                            chartType: 'line',
+                            title: "磁盘 容量",
+                            desc: "磁盘使用情况，单位GB",
+                            yAxis: {
+                                visible: true,
+                                min: 0,
+                                max: 100,
+                                tickCount: 5,
+                            },
+                            loading: true,
+                        },
+                        
+                    ],
+                },
+                {
+                    panelTitle: 'Proc Intensives',
+                    chartConfigs: [
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                            pointsData: [],
+                            type: 'proc_top_cpu',
+                            chartType: 'bullet',
+                            title: "CPU活跃TOP10",
+                            desc: "CPU活跃进程，单位百分比",
+                            loading: true,
+                        },
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                            pointsData: [],
+                            type: 'proc_top_mem',
+                            chartType: 'bullet',
+                            title: "MEM活跃TOP10",
+                            desc: "CPU活跃进程，单位百分比",
+                            loading: true,
+                        }
+                    ]
+                },
+                
             ],
         };
         this.fetchData           = this.fetchData.bind(this);
@@ -128,6 +147,10 @@ class MachinePage extends React.Component {
         };
     }
 
+    rowIdx2Key(idx) {
+        return "row_" + idx.toString();
+    }
+
     unixTimestamp2DateFormat(timestamp) {
         return new Date(timestamp * 1000).Format("HH:mm:ss");
     }
@@ -141,11 +164,12 @@ class MachinePage extends React.Component {
     }
 
     updateChartData2State(row, rowIdx, col, colIdx, data) {
-        row[colIdx].pointsData = data;
+        //row[colIdx].pointsData = data;
         this.setState((preState) => {
             var newState = JSON.parse(JSON.stringify(preState));
-            newState.chartDataArray[rowIdx][colIdx].pointsData = data;
-            newState.chartDataArray[rowIdx][colIdx].loading = false;
+            const ele = newState.chartDataArray[rowIdx].chartConfigs[colIdx];
+            ele.pointsData = data;
+            ele.loading = false;
             return newState;
         });
     }
@@ -153,14 +177,14 @@ class MachinePage extends React.Component {
     updateChartLoading2State(row, rowIdx, col, colIdx, loading) {
         this.setState((preState) => {
             var newState = JSON.parse(JSON.stringify(preState));
-            newState.chartDataArray[rowIdx][colIdx].loading = loading;
+            newState.chartDataArray[rowIdx].chartConfigs[colIdx].loading = loading;
             return newState;
         });
     }
 
     fetchCpuData(row, rowIdx, col, colIdx) {
         let timeRange = this.genQueryTimeRange();
-        let url = this.state.chartDataArray[rowIdx][colIdx].queryUrl;
+        let url = this.state.chartDataArray[rowIdx].chartConfigs[colIdx].queryUrl;
 
         this.updateChartLoading2State(row, rowIdx, col, colIdx, true);
 
@@ -203,8 +227,8 @@ class MachinePage extends React.Component {
 
     fetchDataParallel(row, rowIdx, col, colIdx, inputs, unitTranslator, labelAppender) {
         let timeRange = this.genQueryTimeRange();
-        const item = this.state.chartDataArray[rowIdx][colIdx];
-        let url = this.state.chartDataArray[rowIdx][colIdx].queryUrl;
+        const item = this.state.chartDataArray[rowIdx].chartConfigs[colIdx];
+        let url = item.queryUrl;
 
         let loading  = true;
         this.updateChartLoading2State(row, rowIdx, col, colIdx, loading);
@@ -265,7 +289,7 @@ class MachinePage extends React.Component {
                         if (item.type === 'proc_top_cpu' || item.type === 'proc_top_mem') {
                             const proc = dataEle.metric.proc;
                             let pointDate = this.unixTimestamp2DateFormat(dataEle.value[0]);
-                            let value = dataEle.value[1];
+                            let value = parseFloat(dataEle.value[1]);
 
                             totalResult.push(eleProcessor(dataEle, resIdx, proc, pointDate, value));
                         } else {
@@ -285,7 +309,7 @@ class MachinePage extends React.Component {
                 if (item.type === 'proc_top_cpu' || item.type === 'proc_top_mem') {
                     console.log("before update", totalResult);
                     totalResult.sort((ele1, ele2) => {
-                        return ele2.bulletMeasure - ele1.bulletMeasure;
+                        return parseInt(ele2.bulletMeasure) - parseInt(ele1.bulletMeasure);
                     });
                     // if (totalResult.length < 10) {
                     //     let j = 0;
@@ -461,7 +485,8 @@ class MachinePage extends React.Component {
     }
 
     fetchData() {
-        this.state.chartDataArray.forEach((row, rowIdx) => {
+        this.state.chartDataArray.forEach((rowObj, rowIdx) => {
+            const row = rowObj.chartConfigs;
             row.forEach((col, colIdx) => {
                 switch (col.type) {
                     case "cpu":         this.fetchCpuData(row, rowIdx, col, colIdx);            break;
@@ -490,13 +515,15 @@ class MachinePage extends React.Component {
     }
 
     render() {
-        const rows = [];
+        const rowPanels = [];
         for (let i = 0; i < this.state.chartDataArray.length; ++i) {
             const cols = [];
-            for (let j = 0; j < this.state.chartDataArray[i].length; ++j) {
+
+            const chartConfigRow = this.state.chartDataArray[i].chartConfigs;
+            const panelTitle = this.state.chartDataArray[i].panelTitle;
+            for (let j = 0; j < chartConfigRow.length; ++j) {
                 let colKey = "col_" + i.toString() + "_" + j.toString();
-                let chartData = this.state.chartDataArray[i][j];
-                let comRef = null;
+                let chartData = chartConfigRow[j];
 
                 if (chartData.chartType === 'line') {
                     const data = {
@@ -511,8 +538,11 @@ class MachinePage extends React.Component {
     
                     
                     cols.push(
-                        <Col key={colKey} span={8} > 
-                            { chartData.loading ? <Spin><LineChart {...data} /></Spin> : <LineChart {...data} /> }
+                        <Col key={colKey} span={12} > 
+                            <Card title={chartData.title}>
+                                { chartData.loading ? <Spin><LineChart {...data} /></Spin> : <LineChart {...data} /> }
+                            </Card>
+                            
                         </Col>
                     );
                 }
@@ -523,26 +553,32 @@ class MachinePage extends React.Component {
                         chartDesc: chartData.desc,
                     };
                     cols.push(
-                        <Col key={colKey} span={8} > 
-                            { chartData.loading ? <Spin><BulletChart {...config} /></Spin> : <BulletChart {...config} /> }
+                        <Col key={colKey} span={12} > 
+                            <Card title={chartData.title}>
+                                { chartData.loading ? <Spin><BulletChart {...config} /></Spin> : <BulletChart {...config} /> }
+                            </Card>    
                         </Col>
                     )
                 }
-                
-                chartData.comRef = comRef;
+            
             }
 
-            const rowKey = "row_" + i.toString();
-            rows.push(
-                <Row key={rowKey} gutter={[16, 16]}>
-                    {cols}
-                </Row>
+            const rowKey = this.rowIdx2Key(i);
+            rowPanels.push(
+                <Panel header={panelTitle} key={rowKey}>
+                    <Row key={rowKey} gutter={[16, 16]}>
+                        {cols}
+                    </Row>
+                </Panel>
             )
         }
 
         return (
             <div>
-                {rows}
+                <Collapse defaultActiveKey={[this.rowIdx2Key(0)]} >
+                    {rowPanels}
+                </Collapse>
+                
             </div>
         );
     }
