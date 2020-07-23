@@ -5,7 +5,6 @@ import LineChart from './LineChart';
 import BulletChart from './BulletChart';
 
 import 'antd/dist/antd.css';
-import './MachinePage.css';
 
 const { Panel } = Collapse;
 const axios = require('axios').default;
