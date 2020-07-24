@@ -13,9 +13,9 @@ if(inIFrame()) {
 }
 
 // 计算页面的实际高度，iframe自适应会用到
-function calcPageHeight(doc) {
-    var height = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight)
-    return height
+function calcPageHeight(ele) {
+    var height = ele.scrollHeight;
+    return height;
 }
 
 function iframeChangedHandler() {
@@ -23,8 +23,8 @@ function iframeChangedHandler() {
         console.log("not inside iframe, no need to change iframe size");
         return;
     }
-    
-    var height = calcPageHeight(document)
+
+    var height = calcPageHeight(document.getElementById('root'));
     
     // eslint-disable-next-line no-restricted-globals
     var parentIFrameNode = parent.document.getElementById('ifr');

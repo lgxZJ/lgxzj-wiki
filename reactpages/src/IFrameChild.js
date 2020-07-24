@@ -13,15 +13,15 @@ if(inIFrame()) {
 }
 
 // 计算页面的实际高度，iframe自适应会用到
-function calcPageHeight(doc) {
-    console.log("body scroll height:", doc.body.scrollHeight);
-    console.log("doc ele scroll height:", doc.documentElement.scrollHeight);
-    console.log("body client height:", doc.body.clientHeight);
-    console.log("doc ele client height:", doc.documentElement.clientHeight);
-    console.log("body offset height:", doc.body.offsetHeight);
-    console.log("doc ele offset height:", doc.documentElement.offsetHeight);
+function calcPageHeight(ele) {
+    // console.log("body scroll height:", doc.body.scrollHeight);
+    // console.log("doc ele scroll height:", doc.documentElement.scrollHeight);
+    // console.log("body client height:", doc.body.clientHeight);
+    // console.log("doc ele client height:", doc.documentElement.clientHeight);
+    // console.log("body offset height:", doc.body.offsetHeight);
+    // console.log("doc ele offset height:", doc.documentElement.offsetHeight);
 
-    var height = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight);
+    var height = Math.max(ele.scrollHeight, ele.scrollHeight);
     return height;
 }
 
@@ -31,7 +31,7 @@ function iframeChangedHandler() {
         return;
     }
 
-    var height = calcPageHeight(document)
+    var height = calcPageHeight(document.getElementById('root'));
     
     // eslint-disable-next-line no-restricted-globals
     var parentIFrameNode = parent.document.getElementById('ifr');
