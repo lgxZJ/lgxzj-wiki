@@ -138,8 +138,7 @@ class MachinePage extends React.Component {
     }
 
     panelChanged() {
-        console.log("panel changed");
-        IFrameChangeHandler();
+        setTimeout(IFrameChangeHandler, 500);;
     }
 
     genQueryTimeRange() {
