@@ -3,6 +3,7 @@ import { Row, Col,Spin, Collapse, Card } from 'antd';
 
 import LineChart from './LineChart';
 import BulletChart from './BulletChart';
+import IFrameChangeHandler from './IFrameChild';
 
 import 'antd/dist/antd.css';
 
@@ -133,6 +134,12 @@ class MachinePage extends React.Component {
         this.fetchData           = this.fetchData.bind(this);
         this.fetchCpuData        = this.fetchCpuData.bind(this);
         this.genQueryTimeRange   = this.genQueryTimeRange.bind(this);
+        this.panelChanged        = this.panelChanged.bind(this);
+    }
+
+    panelChanged() {
+        console.log("panel changed");
+        IFrameChangeHandler();
     }
 
     genQueryTimeRange() {
@@ -574,7 +581,7 @@ class MachinePage extends React.Component {
 
         return (
             <div>
-                <Collapse defaultActiveKey={[this.rowIdx2Key(0)]} >
+                <Collapse defaultActiveKey={[this.rowIdx2Key(0)]} onChange={this.panelChanged} >
                     {rowPanels}
                 </Collapse>
                 
