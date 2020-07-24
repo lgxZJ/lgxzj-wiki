@@ -16,10 +16,13 @@ do
     curl -XPUT http://localhost:${pushgateway_listen_address}/api/v1/admin/wipe
 
     echo "start collecting cpu metrics"
-    count=1
+    count=-1
     ps -Ao user,comm,pid,pcpu,pmem --sort=-pcpu | while read line
     do
         count=$((count+1))
+	if [ ${count} -eq 0 ]; then
+            continue;
+        fi
         if [ ${count} -gt ${topN} ]; then
            break;
         fi
@@ -39,10 +42,13 @@ ps_pusher_cpu ${cpu}
     done
 
     echo "start collecting mem metrics"
-    count=1
+    count=-1
     ps -Ao user,comm,pid,pcpu,pmem --sort -rss | while read line
     do
         count=$(( count + 1 ))
+	if [ ${count} -eq 0 ]; then
+            continue;
+        fi
         if [ ${count} -gt ${topN} ]; then
     	    break;
         fi
