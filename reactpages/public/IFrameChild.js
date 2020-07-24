@@ -14,13 +14,16 @@ if(inIFrame()) {
 
 // 计算页面的实际高度，iframe自适应会用到
 function calcPageHeight(doc) {
-    var cHeight = Math.max(doc.body.clientHeight, doc.documentElement.clientHeight)
-    var sHeight = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight)
-    var height  = Math.max(cHeight, sHeight)
+    var height = Math.max(doc.body.scrollHeight, doc.documentElement.scrollHeight)
     return height
 }
 
 function iframeChangedHandler() {
+    if (!inIFrame()) {
+        console.log("not inside iframe, no need to change iframe size");
+        return;
+    }
+    
     var height = calcPageHeight(document)
     
     // eslint-disable-next-line no-restricted-globals
