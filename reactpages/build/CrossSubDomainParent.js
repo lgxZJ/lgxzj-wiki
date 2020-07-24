@@ -1,3 +1,2 @@
-<script type="text/javascript">
-        document.domain = 'lgxzj.wiki'
-</script>
+//  use document.domain to implement cross-domain refs
+document.domain = 'lgxzj.wiki'
