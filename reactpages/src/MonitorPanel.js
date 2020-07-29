@@ -6,6 +6,8 @@ import BulletChart from './BulletChart';
 import IFrameChangeHandler from './IFrameChild';
 
 import 'antd/dist/antd.css';
+import LiquidChart from './LiquidChart';
+import StatisticChart from './StatisticChart';
 
 const { Panel } = Collapse;
 const axios = require('axios').default;
@@ -114,7 +116,7 @@ class MonitorPanel extends React.Component {
 
 
 
-    fetchDataParallel(row, rowIdx, col, colIdx, inputs, unitTranslator, labelAppender) {
+    fetchDataParallel(row, rowIdx, col, colIdx, inputs, unitTranslator, labelAppender, valueParser) {
         let timeRange = this.genQueryTimeRange();
         const item = this.state.chartDataArray[rowIdx].chartConfigs[colIdx];
         let url = item.queryUrl;
@@ -149,19 +151,27 @@ class MonitorPanel extends React.Component {
                 }
             }
             
-            switch (item.type) {
-                case 'proc_top_mem':
-                case 'proc_top_cpu':
+            switch (item.chartType) {
+                case 'bullet':
                     return {
                             bulletTitle: proc,
                             bulletMeasure: value,
                     };
                     
-                default:
+                case 'line':
                     return {
                             [this.state.xFieldName]: pointDate,
                             [this.state.yFieldName]: value,
                             [this.state.seriesField]:label,
+                    };
+                case 'liquid':
+                    return {
+                        curValue: value,
+                        maxValue: item.maxValue,
+                    };
+                case 'statistics':
+                    return {
+                        value: value,
                     };
             }
         }
@@ -176,6 +186,7 @@ class MonitorPanel extends React.Component {
 
                     machineResult.forEach((dataEle) => {
                         if (item.type === 'proc_top_cpu' || item.type === 'proc_top_mem') {
+
                             const proc = dataEle.metric.proc;
                             let pointDate = this.unixTimestamp2DateFormat(dataEle.value[0]);
                             let value = parseFloat(dataEle.value[1]);
@@ -187,7 +198,13 @@ class MonitorPanel extends React.Component {
                             
                             itemDataValues.forEach((point) => {
                                 let pointDate = this.unixTimestamp2DateFormat(point[0]);
-                                let value = this.stringValue2Int(point[1]);
+                                var value = null;
+                                if (valueParser == null) {
+                                    value = this.stringValue2Int(point[1]);
+                                } else {
+                                    value = valueParser(point[1]);
+                                    console.log("--", value);
+                                }
                                 
                                 totalResult.push(eleProcessor(dataEle, resIdx, proc, pointDate, value));
                             });
@@ -349,6 +366,231 @@ class MonitorPanel extends React.Component {
         );
     }
 
+    fetchMysqlConnStats(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:    "mysql_global_variables_max_connections",
+                label:    "max_limit_conn",
+            },
+            {
+                query:    "mysql_global_status_threads_connected",
+                label:    "cur_active_conn",
+            },
+            {
+                query:    "mysql_global_status_max_used_connections",
+                label:    "max_used_conn",
+            },
+            {
+                query:    "mysql_global_status_threads_connected",
+                label:    "opened_conn",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null
+        );
+    }
+
+    fetchMysqlConnError(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:    "irate(mysql_global_status_connection_errors_total[15s])",
+                label:    "err_rate",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.error; },
+            (value) => parseFloat(parseFloat(value).toFixed(1))
+        );
+    }
+
+    fetchMysqlTpsQps(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'irate(mysql_global_status_commands_total{command=~"(commit)"}[15s])',
+                label:      "tps_commit",
+            },
+            {
+                query:      'irate(mysql_global_status_commands_total{command=~"(rollback)"}[15s])',
+                label:      "tps_rollback",
+            },
+            {
+                query:      'sum(irate(mysql_global_status_commands_total[15s]))',
+                label:      'qps_all',
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null,
+            (value) => parseFloat(parseFloat(value).toFixed(1))
+        );
+    }
+
+    fetchMysqlQuerySlow(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'irate(mysql_global_status_slow_queries[15s])',
+                label:      "query_slow",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null,
+            (value) =>  parseFloat(parseFloat(value).toFixed(1))
+        );
+    }
+
+    fetchMysqlSlowThreshold(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'mysql_global_variables_long_query_time',
+                label:      "threshold",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null,
+            (value) =>  parseFloat(parseFloat(value).toFixed(1))
+        );
+    }
+
+    fetchMysqlBufferPoolPages(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'mysql_global_status_buffer_pool_pages',
+                label:      "pages",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.state; },
+            (value) =>  parseFloat(parseFloat(value).toFixed(1)),
+        );
+    }
+
+    fetchMysqlBufferPoolHits(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'irate(mysql_global_status_innodb_buffer_pool_read_requests[15s])',
+                label:      "hits_per_sec",
+            },
+            {
+                query:      'irate(mysql_global_status_innodb_buffer_pool_reads[15s])',
+                label:      'non_hits_per_sec'
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null,
+            (value) =>  parseFloat(parseFloat(value).toFixed(1)),
+        );
+    }
+
+    fetchMysqlBufferPageSize(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'mysql_global_status_innodb_page_size',
+                label:      "page_size",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,// Math.floor(value / 1024 / 1024 / 1024),
+            null,
+            (value) =>  parseFloat(parseFloat(value).toFixed(1)),
+        );
+    }
+
+    fetchMysqlBufferPoolSize(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'mysql_global_variables_innodb_buffer_pool_size',
+                label:      "page_size",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,// Math.floor(value / 1024 / 1024 / 1024),
+            null,
+            (value) =>  parseFloat(parseFloat(value).toFixed(1)),
+        );
+    }
+
+    fetchMysqlCommandQps(row, rowIdx, col, colIdx) {
+        const inputs = [
+            {
+                query:      'irate(mysql_global_status_commands_total{command=~"(select)"}[15s])',
+                label:      "qps_select",
+            },
+            {
+                query:      'irate(mysql_global_status_commands_total{command=~"(delete)"}[15s])',
+                label:      'qps_delete',
+            },
+            {
+                query:      'irate(mysql_global_status_commands_total{command=~"(update)"}[15s])',
+                label:      'qps_update',
+            },
+            {
+                query:      'irate(mysql_global_status_commands_total{command=~"(insert)"}[15s])',
+                label:      'qps_insert',
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null,
+            (value) =>  parseFloat(parseFloat(value).toFixed(1))
+        );
+    }
+
     fetchDiskCapacityData(row, rowIdx, col, colIdx) {
         const inputs = [
             {
@@ -386,6 +628,19 @@ class MonitorPanel extends React.Component {
                     
                     case 'proc_top_cpu':this.fetchProcCpuTopData(row, rowIdx, col, colIdx);     break;
                     case 'proc_top_mem':this.fetchProcMemTopData(row, rowIdx, col, colIdx);     break;
+
+                    case 'mysql_conn_stats':    this.fetchMysqlConnStats(row, rowIdx, col, colIdx);     break;
+                    case 'mysql_conn_err':      this.fetchMysqlConnError(row, rowIdx, col, colIdx);     break;
+
+                    case 'mysql_tps_qps':       this.fetchMysqlTpsQps(row, rowIdx, col, colIdx);        break;
+                    case 'mysql_command_qps':   this.fetchMysqlCommandQps(row, rowIdx, col, colIdx);    break;
+                    case 'mysql_query_slow':    this.fetchMysqlQuerySlow(row, rowIdx, col, colIdx);     break;
+                    case 'mysql_slow_threshold':this.fetchMysqlSlowThreshold(row, rowIdx, col, colIdx); break;
+
+                    case 'mysql_buffer_pool_pages':     this.fetchMysqlBufferPoolPages(row, rowIdx, col, colIdx);   break;
+                    case 'mysql_buffer_pool_hits':      this.fetchMysqlBufferPoolHits(row, rowIdx, col, colIdx);    break;
+                    case 'mysql_buffer_pool_page_size': this.fetchMysqlBufferPageSize(row, rowIdx, col, colIdx);    break;
+                    case 'mysql_buffer_pool_size':      this.fetchMysqlBufferPoolSize(row, rowIdx, col, colIdx);    break;
                     
                     default:        break;
                 }
@@ -396,8 +651,8 @@ class MonitorPanel extends React.Component {
     componentDidMount() {
         this.fetchData();
 
-        const oneSecond = 3000;
-        setInterval(this.fetchData, oneSecond);
+        const intervalSecond = 5000;
+        setInterval(this.fetchData, intervalSecond);
     }
     componentWillUnmount() {
         
@@ -449,7 +704,33 @@ class MonitorPanel extends React.Component {
                         </Col>
                     )
                 }
-            
+                if (chartData.chartType === 'liquid') {
+                    const config = {
+                        desc: chartData.desc,
+                        curValue: chartData.pointsData.length === 0 ? null : chartData.pointsData[chartData.pointsData.length - 1].curValue,
+                        maxValue: chartData.pointsData.length === 0 ? null : chartData.pointsData[chartData.pointsData.length - 1].maxValue,
+                    };
+                    cols.push(
+                        <Col key={colKey} span={12} > 
+                            <Card title={chartData.title}>
+                                { chartData.loading ? <Spin><LiquidChart {...config} /></Spin> : <LiquidChart {...config} /> }
+                            </Card>    
+                        </Col>
+                    )
+                }
+                if (chartData.chartType === 'statistics') {
+                    const config = {
+                        desc: chartData.desc,
+                        value: chartData.pointsData.length === 0 ? null : chartData.pointsData[chartData.pointsData.length - 1].value,
+                    };
+                    cols.push(
+                        <Col key={colKey} span={12} > 
+                            <Card title={chartData.title}>
+                                { chartData.loading ? <Spin><StatisticChart {...config} /></Spin> : <StatisticChart {...config} /> }
+                            </Card>    
+                        </Col>
+                    )
+                }
             }
 
             const rowKey = this.rowIdx2Key(i);
