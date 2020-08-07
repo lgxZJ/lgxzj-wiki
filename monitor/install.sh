@@ -59,6 +59,7 @@ ps_pusher_top_n=$(read_ini ${iniFileLoc} ps_pusher_top_n)
 ps_pusher_sleep_second=$(read_ini ${iniFileLoc} ps_pusher_sleep_second)
 ps_pusher_pid_file_loc=$(read_ini ${iniFileLoc} ps_pusher_pid_file_loc)
 nginx_prometheus_metric_listen_address=$(read_ini ${iniFileLoc} nginx_prometheus_metric_listen_address)
+php_fpm_exporter_listen_address=$(read_ini ${iniFileLoc} php_fpm_exporter_listen_address)
 
 ##############################################################
 # Translate stop.template into runnable scripts
@@ -119,6 +120,7 @@ replace_str ./prometheus.yml '${prometheus_listen_address}' ${prometheus_listen_
 replace_str ./prometheus.yml '${pushgateway_listen_address}' ${pushgateway_listen_address}
 replace_str ./prometheus.yml '${mysql_exporter_listen_address}' ${mysql_exporter_listen_address}
 replace_str ./prometheus.yml '${nginx_prometheus_metric_listen_address}' ${nginx_prometheus_metric_listen_address}
+replace_str ./prometheus.yml '${php_fpm_exporter_listen_address}' ${php_fpm_exporter_listen_address}
 cp -f prometheus.yml ${monitor_prometheus_install_dir}
 
 ########################################################
