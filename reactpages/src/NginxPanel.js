@@ -13,23 +13,40 @@ class NginxPanel extends React.Component {
             
             chartDataArray: [
                 {
-                    panelTitle: 'Cpu & Mem',
+                    panelTitle: 'Wordpress Blog Site',
                     chartConfigs: [
-                        // {
-                        //     queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
-                        //     pointsData: [],
-                        //     type: 'cpu',
-                        //     chartType: 'line',
-                        //     title: "CPU 负载",
-                        //     desc: "按cpu分组的负载率",
-                        //     yAxis: {
-                        //         visible: true,
-                        //         min: 0,
-                        //         max: 110,
-                        //         tickCount: 5,
-                        //     },
-                        //     loading: true,
-                        // },                        
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                            pointsData: [],
+                            type: 'nginx_http_req_status_www.lgxzj.wiki',
+                            chartType: 'pie',
+                            title: "www.lgxzj.wiki请求响应分布",
+                            desc: "",
+                            loading: true,
+                        },                        
+                    ],
+                },
+                {
+                    panelTitle: 'React Pages',
+                    chartConfigs: [
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                            pointsData: [],
+                            type: 'nginx_http_req_status_metric.lgxzj.wiki',
+                            chartType: 'pie',
+                            title: "metric.lgxzj.wiki请求响应分布",
+                            desc: "",
+                            loading: true,
+                        }, 
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                            pointsData: [],
+                            type: 'nginx_http_req_status_react.lgxzj.wiki',
+                            chartType: 'pie',
+                            title: "react.lgxzj.wiki请求响应分布",
+                            desc: "",
+                            loading: true,
+                        },                        
                     ],
                 },
             ],

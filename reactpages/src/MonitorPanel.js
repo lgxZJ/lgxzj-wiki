@@ -8,6 +8,7 @@ import IFrameChangeHandler from './IFrameChild';
 import 'antd/dist/antd.css';
 import LiquidChart from './LiquidChart';
 import StatisticChart from './StatisticChart';
+import PieChart  from './PieChart';
 
 const { Panel } = Collapse;
 const axios = require('axios').default;
@@ -173,6 +174,11 @@ class MonitorPanel extends React.Component {
                     return {
                         value: value,
                     };
+                case 'pie':
+                    return {
+                        type: label,
+                        value: value,
+                    }
             }
         }
 
@@ -185,7 +191,19 @@ class MonitorPanel extends React.Component {
                     
 
                     machineResult.forEach((dataEle) => {
-                        if (item.type === 'proc_top_cpu' || item.type === 'proc_top_mem') {
+                        if (item.type === 'proc_top_cpu' || 
+                            item.type === 'proc_top_mem' || 
+                            item.type === 'nginx_http_req_status_metric.lgxzj.wiki' ||
+                            item.type === 'nginx_http_req_status_react.lgxzj.wiki' ||
+                            item.type === 'nginx_http_req_status_www.lgxzj.wiki' ||
+                            item.type === 'phpfpm_wordpress_total_conns' ||
+                            item.type === 'phpfpm_wordpress_start_time' ||
+                            item.type === 'phpfpm_wordpress_max_active_proc' ||
+                            item.type === 'phpfpm_wordpress_proc_threshold_times' ||
+                            item.type === 'phpfpm_sql_total_conns' ||
+                            item.type === 'phpfpm_sql_start_time' ||
+                            item.type === 'phpfpm_sql_max_active_proc' ||
+                            item.type === 'phpfpm_sql_proc_threshold_times') {
 
                             const proc = dataEle.metric.proc;
                             let pointDate = this.unixTimestamp2DateFormat(dataEle.value[0]);
@@ -212,7 +230,20 @@ class MonitorPanel extends React.Component {
                     });
                 })
 
-                if (item.type === 'proc_top_cpu' || item.type === 'proc_top_mem') {
+                if (item.type === 'proc_top_cpu' || 
+                    item.type === 'proc_top_mem' || 
+                    item.type === 'nginx_http_req_status_metric.lgxzj.wiki' ||
+                    item.type === 'nginx_http_req_status_react.lgxzj.wiki' ||
+                    item.type === 'nginx_http_req_status_www.lgxzj.wiki' ||
+                    item.type === 'phpfpm_wordpress_total_conns' ||
+                    item.type === 'phpfpm_wordpress_start_time' ||
+                    item.type === 'phpfpm_wordpress_max_active_proc' ||
+                    item.type === 'phpfpm_wordpress_proc_threshold_times' ||
+                    item.type === 'phpfpm_sql_total_conns' ||
+                    item.type === 'phpfpm_sql_start_time' ||
+                    item.type === 'phpfpm_sql_max_active_proc' ||
+                    item.type === 'phpfpm_sql_proc_threshold_times') {
+
                     console.log("before update", totalResult);
                     totalResult.sort((ele1, ele2) => {
                         return parseInt(ele2.bulletMeasure) - parseInt(ele1.bulletMeasure);
@@ -560,6 +591,147 @@ class MonitorPanel extends React.Component {
         );
     }
 
+    fetchPhpfpmPoolProcThresholdTimes(row, rowIdx, col, colIdx, poolName) {
+        const inputs = [
+            {
+                query:      'phpfpm_max_children_reached{pool="' + poolName + '"}',
+                label:      "proc_thresold_times",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,// Math.floor(value / 1024 / 1024 / 1024),
+            null,
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchPhpfpmPoolMacActiveProc(row, rowIdx, col, colIdx, poolName) {
+        const inputs = [
+            {
+                query:      'phpfpm_max_active_processes{pool="' + poolName + '"}',
+                label:      "max_active_proc",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,// Math.floor(value / 1024 / 1024 / 1024),
+            null,
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchPhpfpmPoolConns(row, rowIdx, col, colIdx, poolName) {
+        const inputs = [
+            {
+                query:      'phpfpm_accepted_connections{pool="' + poolName + '"}',
+                label:      "total_conns",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,// Math.floor(value / 1024 / 1024 / 1024),
+            null,
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, poolName) {
+        const inputs = [
+            {
+                query:      'phpfpm_process_request_duration{pool="' + poolName + '"}',
+                label:      "pidhash",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.pid_hash;},
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchPhpfpmPoolProcess(row, rowIdx, col, colIdx, poolName) {
+        const inputs = [
+            {
+                query:      'phpfpm_active_processes{pool="' + poolName + '"}',
+                label:      "active",
+            },
+            {
+                query:      'phpfpm_idle_processes{pool="' + poolName + '"}',
+                label:      "idle",
+            },
+            {
+                query:      'phpfpm_total_processes{pool="' + poolName + '"}',
+                label:      "total",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null,
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchPhpfpmPoolStartTime(row, rowIdx, col, colIdx, poolName) {
+        const inputs = [
+            {
+                query:      'phpfpm_start_since{pool="' + poolName + '"}',
+                label:      "start_time",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => Math.floor(value / 60),
+            null,
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchNginxHttpStatus(row, rowIdx, col, colIdx, host) {
+        const inputs = [
+            {
+                query:      'nginx_http_requests_total{host="' + host + '"}',
+                label:      "http",
+            }
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.status;},
+            (value) => parseInt(value)
+        );
+    }
+
     fetchMysqlCommandQps(row, rowIdx, col, colIdx) {
         const inputs = [
             {
@@ -641,6 +813,29 @@ class MonitorPanel extends React.Component {
                     case 'mysql_buffer_pool_hits':      this.fetchMysqlBufferPoolHits(row, rowIdx, col, colIdx);    break;
                     case 'mysql_buffer_pool_page_size': this.fetchMysqlBufferPageSize(row, rowIdx, col, colIdx);    break;
                     case 'mysql_buffer_pool_size':      this.fetchMysqlBufferPoolSize(row, rowIdx, col, colIdx);    break;
+                    
+                    case 'nginx_http_req_status_metric.lgxzj.wiki':         this.fetchNginxHttpStatus(row, rowIdx, col, colIdx, "metric.lgxzj.wiki");       break;
+                    case 'nginx_http_req_status_react.lgxzj.wiki':          this.fetchNginxHttpStatus(row, rowIdx, col, colIdx, "react.lgxzj.wiki");        break;
+                    case 'nginx_http_req_status_www.lgxzj.wiki':            this.fetchNginxHttpStatus(row, rowIdx, col, colIdx, "www.lgxzj.wiki");          break;
+
+                    case 'phpfpm_wordpress_total_conns':    this.fetchPhpfpmPoolConns(row, rowIdx, col, colIdx, "wordpress");       break;
+                    case 'phpfpm_wordpress_start_time':     this.fetchPhpfpmPoolStartTime(row, rowIdx, col, colIdx, "wordpress");   break;
+
+                    case 'phpfpm_wordpress_max_active_proc':        this.fetchPhpfpmPoolMacActiveProc(row, rowIdx, col, colIdx, "wordpress");       break;
+                    case 'phpfpm_wordpress_proc_threshold_times':   this.fetchPhpfpmPoolProcThresholdTimes(row, rowIdx, col, colIdx, "wordpress");   break;
+
+                    case 'phpfpm_wordpress_process':        this.fetchPhpfpmPoolProcess(row, rowIdx, col, colIdx, "wordpress");   break;
+                    case 'phpfpm_wordpress_req_latency':    this.fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, "wordpress");   break;
+
+                    case 'phpfpm_sql_total_conns':    this.fetchPhpfpmPoolConns(row, rowIdx, col, colIdx, "sql");       break;
+                    case 'phpfpm_sql_start_time':     this.fetchPhpfpmPoolStartTime(row, rowIdx, col, colIdx, "sql");   break;
+
+                    case 'phpfpm_sql_max_active_proc':        this.fetchPhpfpmPoolMacActiveProc(row, rowIdx, col, colIdx, "sql");       break;
+                    case 'phpfpm_sql_proc_threshold_times':   this.fetchPhpfpmPoolProcThresholdTimes(row, rowIdx, col, colIdx, "sql");   break;
+
+                    case 'phpfpm_sql_process':        this.fetchPhpfpmPoolProcess(row, rowIdx, col, colIdx, "sql");   break;
+                    case 'phpfpm_sql_req_latency':    this.fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, "sql");   break;
+                    
                     
                     default:        break;
                 }
@@ -727,6 +922,20 @@ class MonitorPanel extends React.Component {
                         <Col key={colKey} span={12} > 
                             <Card title={chartData.title}>
                                 { chartData.loading ? <Spin><StatisticChart {...config} /></Spin> : <StatisticChart {...config} /> }
+                            </Card>    
+                        </Col>
+                    )
+                }
+                if (chartData.chartType === 'pie') {
+                    const config = {
+                            title:  chartData.title,
+                            desc:   chartData.desc,
+                            data:   chartData.pointsData.length === 0 ? [] : chartData.pointsData,
+                    };
+                    cols.push(
+                        <Col key={colKey} span={12} > 
+                            <Card title={chartData.title}>
+                                { chartData.loading ? <Spin><PieChart {...config} /></Spin> : <PieChart {...config} /> }
                             </Card>    
                         </Col>
                     )
