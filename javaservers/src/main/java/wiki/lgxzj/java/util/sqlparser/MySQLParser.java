@@ -3,7 +3,7 @@ package wiki.lgxzj.java.util.sqlparser;
 import gudusoft.gsqlparser.EDbVendor;
 import gudusoft.gsqlparser.TGSqlParser;
 import wiki.lgxzj.java.model.bo.sqlparser.ValidateResult;
-import wiki.lgxzj.java.util.SqlParser;
+import wiki.lgxzj.java.util.json.JsonSerializer;
 
 public class MySQLParser implements SqlParser {
     @Override
@@ -15,7 +15,7 @@ public class MySQLParser implements SqlParser {
         if (ret == 0) {
             return new ValidateResult(true, "valid MySQL");
         } else {
-            return new ValidateResult(false, mysqlParser.getSyntaxErrors())
+            return new ValidateResult(false, JsonSerializer.toString(mysqlParser.getSyntaxErrors()));
         }
     }
 }
