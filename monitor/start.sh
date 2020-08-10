@@ -47,10 +47,10 @@ nohup ./node_exporter --web.listen-address=":${node_exporter_listen_address}" --
 
 # mysql exporter
 export DATA_SOURCE_NAME="${mysql_exporter_account}:${mysql_exporter_password}@unix(${mysql_socket_file_loc})/"
-nohup ./mysqld_exporter --web.listen-address=":${mysql_exporter_listen_address}" --web.telemetry-path="/metrics" >> mysqld_exporter.log &
+nohup ./mysqld_exporter --web.listen-address=":${mysql_exporter_listen_address}" --web.telemetry-path="/metrics" --collect.info_schema.query_response_time >> mysqld_exporter.log &
 
 # php_fpm exporter
-nohup ./php_fpm_exporter --addr=127.0.0.1:${php_fpm_exporter_listen_address} --fastcgi=tcp://127.0.0.1:9000 >> php_fpm_exporter.log &
+nohup ./php_fpm_exporter server --web.listen-address 127.0.0.1:${php_fpm_exporter_listen_address} --web.telemetry-path="/metrics" --phpfpm.scrape-uri=tcp://127.0.0.1:9000/status,tcp://127.0.0.1:9001/status --phpfpm.fix-process-count=true >> php_fpm_exporter.log &
 
 # process exporter
 #nohup ./process_exporter -web.listen-address=127.0.0.1:${php_fpm_exporter_listen_address} -web.telemetry-path="/metrics" >> process_exporter.log &

@@ -1,7 +1,7 @@
 ; Start a new pool named 'wwordpress.
 ; the variable $pool can be used in any directive and will be replaced by the
 ; pool name ('wordpress	' here)
-[wordpress]
+[sql]
 
 ; Per pool prefix
 ; It only applies on the following directives:
@@ -20,8 +20,8 @@
 ; Unix user/group of processes
 ; Note: The user is mandatory. If the group is not set, the default user's group
 ;       will be used.
-user = lgxzj-php
-group = lgxzj-php
+user = ${php_user}
+group = ${php_group}
 
 ; The address on which to accept FastCGI requests.
 ; Valid syntaxes are:
@@ -33,7 +33,7 @@ group = lgxzj-php
 ;                            (IPv6 and IPv4-mapped) on a specific port;
 ;   '/path/to/unix/socket' - to listen on a unix socket.
 ; Note: This value is mandatory.
-listen = 127.0.0.1:9000
+listen = 127.0.0.1:9001
 
 ; Set listen(2) backlog.
 ; Default Value: 511 (-1 on FreeBSD and OpenBSD)
@@ -247,12 +247,12 @@ pm.status_path = /status
 ;       anything, but it may not be a good idea to use the .php extension or it
 ;       may conflict with a real PHP file.
 ; Default Value: not set
-;ping.path = /ping
+ping.path = /ping
 
 ; This directive may be used to customize the response of a ping request. The
 ; response is formatted as text/plain with a 200 response code.
 ; Default Value: pong
-;ping.response = pong
+ping.response = pong
 
 ; The access log file
 ; Default: not set
