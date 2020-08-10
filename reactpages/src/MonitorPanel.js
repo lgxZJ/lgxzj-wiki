@@ -203,7 +203,8 @@ class MonitorPanel extends React.Component {
                             item.type === 'phpfpm_sql_total_conns' ||
                             item.type === 'phpfpm_sql_start_time' ||
                             item.type === 'phpfpm_sql_max_active_proc' ||
-                            item.type === 'phpfpm_sql_proc_threshold_times') {
+                            item.type === 'phpfpm_sql_proc_threshold_times' ||
+                            item.type === 'phpfpm_sql_req_slow') {
 
                             const proc = dataEle.metric.proc;
                             let pointDate = this.unixTimestamp2DateFormat(dataEle.value[0]);
@@ -242,7 +243,8 @@ class MonitorPanel extends React.Component {
                     item.type === 'phpfpm_sql_total_conns' ||
                     item.type === 'phpfpm_sql_start_time' ||
                     item.type === 'phpfpm_sql_max_active_proc' ||
-                    item.type === 'phpfpm_sql_proc_threshold_times') {
+                    item.type === 'phpfpm_sql_proc_threshold_times' ||
+                    item.type === 'phpfpm_sql_req_slow') {
 
                     console.log("before update", totalResult);
                     totalResult.sort((ele1, ele2) => {
@@ -648,6 +650,25 @@ class MonitorPanel extends React.Component {
         );
     }
 
+    fetchPhpfpmPoolReqSlow(row, rowIdx, col, colIdx, poolName) {
+        const inputs = [
+            {
+                query:      'phpfpm_slow_requests{pool="' + poolName + '"}',
+                label:      "slow_req",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            null,
+            (value) =>  parseInt(value)
+        );
+    }
+
     fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, poolName) {
         const inputs = [
             {
@@ -826,6 +847,7 @@ class MonitorPanel extends React.Component {
 
                     case 'phpfpm_wordpress_process':        this.fetchPhpfpmPoolProcess(row, rowIdx, col, colIdx, "wordpress");   break;
                     case 'phpfpm_wordpress_req_latency':    this.fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, "wordpress");   break;
+                    case 'phpfpm_wordpress_req_slow':    this.fetchPhpfpmPoolReqSlow(row, rowIdx, col, colIdx, "wordpress");   break;
 
                     case 'phpfpm_sql_total_conns':    this.fetchPhpfpmPoolConns(row, rowIdx, col, colIdx, "sql");       break;
                     case 'phpfpm_sql_start_time':     this.fetchPhpfpmPoolStartTime(row, rowIdx, col, colIdx, "sql");   break;
@@ -835,7 +857,7 @@ class MonitorPanel extends React.Component {
 
                     case 'phpfpm_sql_process':        this.fetchPhpfpmPoolProcess(row, rowIdx, col, colIdx, "sql");   break;
                     case 'phpfpm_sql_req_latency':    this.fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, "sql");   break;
-                    
+                    case 'phpfpm_sql_req_slow':    this.fetchPhpfpmPoolReqSlow(row, rowIdx, col, colIdx, "sql");   break;
                     
                     default:        break;
                 }

@@ -30,14 +30,8 @@ class ServicePage extends React.Component {
                     tabTitle: 'PHP-FPM'
                 },
                 {
-                    tabTitle: 'Prometheus'
-                },
-                {
                     tabTitle: 'Backups'
                 },
-                {
-                    tabTitle: 'Wordpress'
-                }
             ]
         }
     }
@@ -53,7 +47,6 @@ class ServicePage extends React.Component {
             case "PHP-FPM":     return <PhpFpmPanel />;
             case "Prometheus":  return <PrometheusPanel />;
             case "Backups":     return <BackupsPanel />;
-            case "Wordpress":   return <WordpressPanel />;
 
             default:    throw "unexpected title:" + title;
         }
