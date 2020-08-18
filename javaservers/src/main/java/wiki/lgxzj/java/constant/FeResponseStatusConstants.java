@@ -1,5 +1,7 @@
 package wiki.lgxzj.java.constant;
 
+import wiki.lgxzj.java.model.vo.FeResponseStatus;
+
 public class FeResponseStatusConstants {
-    public static final int SUCCESS = 0;
+    public static final FeResponseStatus SUCCESS = new FeResponseStatus(0, "success");
 }

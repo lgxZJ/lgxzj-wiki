@@ -1,6 +1,7 @@
 package wiki.lgxzj.java.model.vo;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
