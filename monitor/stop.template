@@ -41,3 +41,12 @@ else
     kill -s SIGTERM ${ps_pusher_pid}
     rm -f ${ps_pusher_pid_file}
 fi
+
+backup_exporter_pid_file="${monitor_exporters_install_dir}/backup_exporter.pid"
+if [ ! -f "${backup_exporter_pid_file}" ]; then
+   echo "backup_exporter not active, no need to kill"
+else
+    backup_exporter_pid=`cat ${backup_exporter_pid_file}`
+    kill -s SIGTERM ${backup_exporter_pid}
+    rm -f ${backup_exporter_pid_file}
+fi

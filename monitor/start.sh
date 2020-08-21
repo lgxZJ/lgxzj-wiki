@@ -26,6 +26,8 @@ mysql_exporter_password=$(read_ini ${iniFileLoc} mysql_exporter_password)
 mysql_socket_file_loc=$(read_ini ${iniFileLoc} mysql_socket_file_loc)
 mysql_exporter_listen_address=$(read_ini ${iniFileLoc} mysql_exporter_listen_address)
 php_fpm_exporter_listen_address=$(read_ini ${iniFileLoc} php_fpm_exporter_listen_address)
+backup_exporter_listen_address=$(read_ini ${iniFileLoc} backup_exporter_listen_address)
+install_backups_dir=$(read_ini ${iniFileLoc} install_backups_dir)
 
 ## start prometheus
 cd ${monitor_prometheus_install_dir}
@@ -55,3 +57,6 @@ nohup ./php_fpm_exporter server --web.listen-address 127.0.0.1:${php_fpm_exporte
 # process exporter
 #nohup ./process_exporter -web.listen-address=127.0.0.1:${php_fpm_exporter_listen_address} -web.telemetry-path="/metrics" >> process_exporter.log &
 
+# backup_exporter
+nohup java -jar ${monitor_exporters_install_dir}/backup_exporter.jar --includeHidden=false --server.port=${backup_exporter_listen_address} --dirUrl=${install_backups_dir} > backup_exporter.log &
+echo $! > backup_exporter.pid

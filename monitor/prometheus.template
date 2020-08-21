@@ -46,3 +46,7 @@ scrape_configs:
   - job_name: 'php_fpm_exporter'
     static_configs:
     - targets: ['localhost:${php_fpm_exporter_listen_address}']
+  - job_name: 'backup_exporter'
+    static_configs:
+    - targets: ['localhost:${backup_exporter_listen_address}']
+    metrics_path: '/actuator/prometheus'
