@@ -60,6 +60,9 @@ ps_pusher_sleep_second=$(read_ini ${iniFileLoc} ps_pusher_sleep_second)
 ps_pusher_pid_file_loc=$(read_ini ${iniFileLoc} ps_pusher_pid_file_loc)
 nginx_prometheus_metric_listen_address=$(read_ini ${iniFileLoc} nginx_prometheus_metric_listen_address)
 php_fpm_exporter_listen_address=$(read_ini ${iniFileLoc} php_fpm_exporter_listen_address)
+backup_exporter_listen_address=$(read_ini ${iniFileLoc} backup_exporter_listen_address)
+
+pwd_dir=`pwd`
 
 ##############################################################
 # Translate stop.template into runnable scripts
@@ -68,6 +71,7 @@ rm -f stop.sh
 cp stop.template stop.sh
 replace_str ./stop.sh '${ps_pusher_pid_file_loc}' ${ps_pusher_pid_file_loc}
 replace_str ./stop.sh '${pusher_install_dir}' ${pusher_install_dir}
+replace_str ./stop.sh '${monitor_exporters_install_dir}' ${monitor_exporters_install_dir}
 chmod u+x ./stop.sh
 
 ##############################################################
@@ -121,6 +125,7 @@ replace_str ./prometheus.yml '${pushgateway_listen_address}' ${pushgateway_liste
 replace_str ./prometheus.yml '${mysql_exporter_listen_address}' ${mysql_exporter_listen_address}
 replace_str ./prometheus.yml '${nginx_prometheus_metric_listen_address}' ${nginx_prometheus_metric_listen_address}
 replace_str ./prometheus.yml '${php_fpm_exporter_listen_address}' ${php_fpm_exporter_listen_address}
+replace_str ./prometheus.yml '${backup_exporter_listen_address}' ${backup_exporter_listen_address}
 cp -f prometheus.yml ${monitor_prometheus_install_dir}
 
 ########################################################
@@ -173,3 +178,8 @@ cp ./${php_fpm_exporter_download_name} ${monitor_exporters_install_dir}/php_fpm_
 #mv ./${process_exporter_download_prefix}/process-exporter ./${process_exporter_download_prefix}/process_exporter
 #cp ./${process_exporter_download_prefix}/process_exporter ${monitor_exporters_install_dir}/process_exporter
 
+########################################################
+# Install backup_exporter
+########################################################
+cd ${pwd_dir}
+cp ../javaservers/javaservers.jar ${monitor_exporters_install_dir}/backup_exporter.jar
