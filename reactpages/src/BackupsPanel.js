@@ -13,21 +13,41 @@ class BackupsPanel extends React.Component {
             
             chartDataArray: [
                 {
-                    panelTitle: 'Cpu & Mem',
+                    panelTitle: 'Backups',
                     chartConfigs: [
                         {
-                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query_range",
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
                             pointsData: [],
-                            type: 'cpu',
-                            chartType: 'line',
-                            title: "CPU 负载",
-                            desc: "按cpu分组的负载率",
-                            yAxis: {
-                                visible: true,
-                                min: 0,
-                                max: 110,
-                                tickCount: 5,
-                            },
+                            type: 'backup_mysql_size',
+                            chartType: 'column',
+                            title: "MySQL备份大小",
+                            desc: "近七日备份，单位KB",
+                            // yAxis: {
+                            //     visible: true,
+                            //     min: 0,
+                            //     max: 110,
+                            //     tickCount: 5,
+                            // },
+                            loading: true,
+                        },                        
+                    ],
+                },
+                {
+                    panelTitle: 'Backups',
+                    chartConfigs: [
+                        {
+                            queryUrl: "http://metric.lgxzj.wiki/api/v1/query",
+                            pointsData: [],
+                            type: 'backup_wordpress_size',
+                            chartType: 'column',
+                            title: "Wordpress备份大小",
+                            desc: "近七日备份，单位KB",
+                            // yAxis: {
+                            //     visible: true,
+                            //     min: 0,
+                            //     max: 110,
+                            //     tickCount: 5,
+                            // },
                             loading: true,
                         },                        
                     ],
