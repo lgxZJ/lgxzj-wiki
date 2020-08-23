@@ -10,6 +10,11 @@ ${install_borg_dir}/borg export-tar ${install_backups_dir}::${archive_name} "${i
 chmod 644 "${install_backups_dir}/${archive_name}.tar.gz"
 
 ${install_borg_dir}/borg prune --keep-within 7d ${install_backups_dir}
+last_period_end_date_literal=`date +%Y_%m_%d -d '-7 days'`
+last_period_file="wordpress_backup_${last_period_end_date_literal}.tar.gz"
+if [ -f ${last_period_file} ]; then
+   rm -f ${last_period_file}
+fi
 
 echo "Backup ends: `date`"
 echo ""
