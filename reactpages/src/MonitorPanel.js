@@ -9,6 +9,7 @@ import 'antd/dist/antd.css';
 import LiquidChart from './LiquidChart';
 import StatisticChart from './StatisticChart';
 import PieChart  from './PieChart';
+import ColumnChart from './ColumnChart';
 
 const { Panel } = Collapse;
 const axios = require('axios').default;
@@ -148,7 +149,10 @@ class MonitorPanel extends React.Component {
             if (labelAppender != null) {
                 let appendLabelPart = labelAppender(dataEle)
                 if (appendLabelPart != null) {
-                    label += ("_" + appendLabelPart);
+                    if (label != null && label.length !== 0) {
+                        label += "_";
+                    }
+                    label += appendLabelPart;
                 }
             }
             
@@ -161,9 +165,14 @@ class MonitorPanel extends React.Component {
                     
                 case 'line':
                     return {
-                            [this.state.xFieldName]: pointDate,
-                            [this.state.yFieldName]: value,
-                            [this.state.seriesField]:label,
+                        [this.state.xFieldName]: pointDate,
+                        [this.state.yFieldName]: value,
+                        [this.state.seriesField]:label,
+                    };
+                case 'column':
+                    return {
+                        name: label,
+                        value: value,
                     };
                 case 'liquid':
                     return {
@@ -178,7 +187,10 @@ class MonitorPanel extends React.Component {
                     return {
                         type: label,
                         value: value,
-                    }
+                    };
+
+                default:
+                    throw 'unexpected chart type:' + item.chartType;
             }
         }
 
@@ -204,7 +216,13 @@ class MonitorPanel extends React.Component {
                             item.type === 'phpfpm_sql_start_time' ||
                             item.type === 'phpfpm_sql_max_active_proc' ||
                             item.type === 'phpfpm_sql_proc_threshold_times' ||
-                            item.type === 'phpfpm_sql_req_slow') {
+                            item.type === 'phpfpm_sql_req_slow' ||
+                            item.type === 'backup_mysql_size' ||
+                            item.type === 'backup_wordpress_size' ||
+                            item.type === 'backup_mysql_duration' ||
+                            item.type === 'backup_wordpress_duration' ||
+                            item.type === 'backup_mysql_timestamp' ||
+                            item.type === 'backup_wordpress_timestamp') {
 
                             const proc = dataEle.metric.proc;
                             let pointDate = this.unixTimestamp2DateFormat(dataEle.value[0]);
@@ -669,6 +687,65 @@ class MonitorPanel extends React.Component {
         );
     }
 
+    fetchBackupSize(row, rowIdx, col, colIdx, filterStr) {
+        const inputs = [
+            {
+                query:      'lgxzj_backup_size_total{file=~"' + filterStr + '.+"}',
+                label:      "",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => Math.floor(value / 1024),
+            (dataEle) => { return dataEle.metric.file;},
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchBackupDuration(row, rowIdx, col, colIdx, filterStr) {
+        const inputs = [
+            {
+                query:      'lgxzj_backup_duration_total{file=~"' + filterStr + '.+"}',
+                label:      "",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.file;},
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchBackupTimestamp(row, rowIdx, col, colIdx, filterStr) {
+        const inputs = [
+            {
+                query:      'lgxzj_backup_timestamps_total{file=~"' + filterStr + '.+"}',
+                label:      "",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.file;},
+            (value) =>  parseInt(value)
+        );
+    }
+
+    
+
     fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, poolName) {
         const inputs = [
             {
@@ -857,8 +934,17 @@ class MonitorPanel extends React.Component {
 
                     case 'phpfpm_sql_process':        this.fetchPhpfpmPoolProcess(row, rowIdx, col, colIdx, "sql");   break;
                     case 'phpfpm_sql_req_latency':    this.fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, "sql");   break;
-                    case 'phpfpm_sql_req_slow':    this.fetchPhpfpmPoolReqSlow(row, rowIdx, col, colIdx, "sql");   break;
+                    case 'phpfpm_sql_req_slow':       this.fetchPhpfpmPoolReqSlow(row, rowIdx, col, colIdx, "sql");   break;
                     
+                    case 'backup_mysql_size':       this.fetchBackupSize(row, rowIdx, col, colIdx, "mysql_backup_");   break;
+                    case 'backup_wordpress_size':   this.fetchBackupSize(row, rowIdx, col, colIdx, "wordpress_backup_");   break;
+
+                    case 'backup_mysql_duration':   this.fetchBackupDuration(row, rowIdx, col, colIdx, "mysql_backup_");   break;
+                    case 'backup_wordpress_duration':   this.fetchBackupDuration(row, rowIdx, col, colIdx, "wordpress_backup_");   break;
+
+                    case 'backup_mysql_timestamp':   this.fetchBackupTimestamp(row, rowIdx, col, colIdx, "mysql_backup_");   break;
+                    case 'backup_wordpress_timestamp':   this.fetchBackupTimestamp(row, rowIdx, col, colIdx, "wordpress_backup_");   break;
+
                     default:        break;
                 }
             })
@@ -961,6 +1047,20 @@ class MonitorPanel extends React.Component {
                             </Card>    
                         </Col>
                     )
+                }
+                if (chartData.chartType === 'column') {
+                    const chartProps = {
+                        title:  chartData.title,
+                        desc:   chartData.desc,
+                        data:   chartData.pointsData,
+                    }
+                    cols.push(
+                        <Col key={colKey} span={12} >
+                            <Card title={chartData.title}>
+                                { chartData.loading ? <Spin><ColumnChart {...chartProps} /></Spin> : <ColumnChart {...chartProps} /> }
+                            </Card>
+                        </Col>
+                    );
                 }
             }
 
