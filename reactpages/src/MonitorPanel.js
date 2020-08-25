@@ -165,9 +165,9 @@ class MonitorPanel extends React.Component {
                     
                 case 'line':
                     return {
-                            [this.state.xFieldName]: pointDate,
-                            [this.state.yFieldName]: value,
-                            [this.state.seriesField]:label,
+                        [this.state.xFieldName]: pointDate,
+                        [this.state.yFieldName]: value,
+                        [this.state.seriesField]:label,
                     };
                 case 'column':
                     return {
@@ -218,7 +218,11 @@ class MonitorPanel extends React.Component {
                             item.type === 'phpfpm_sql_proc_threshold_times' ||
                             item.type === 'phpfpm_sql_req_slow' ||
                             item.type === 'backup_mysql_size' ||
-                            item.type === 'backup_wordpress_size') {
+                            item.type === 'backup_wordpress_size' ||
+                            item.type === 'backup_mysql_duration' ||
+                            item.type === 'backup_wordpress_duration' ||
+                            item.type === 'backup_mysql_timestamp' ||
+                            item.type === 'backup_wordpress_timestamp') {
 
                             const proc = dataEle.metric.proc;
                             let pointDate = this.unixTimestamp2DateFormat(dataEle.value[0]);
@@ -702,6 +706,46 @@ class MonitorPanel extends React.Component {
         );
     }
 
+    fetchBackupDuration(row, rowIdx, col, colIdx, filterStr) {
+        const inputs = [
+            {
+                query:      'lgxzj_backup_duration_total{file=~"' + filterStr + '.+"}',
+                label:      "",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.file;},
+            (value) =>  parseInt(value)
+        );
+    }
+
+    fetchBackupTimestamp(row, rowIdx, col, colIdx, filterStr) {
+        const inputs = [
+            {
+                query:      'lgxzj_backup_timestamps_total{file=~"' + filterStr + '.+"}',
+                label:      "",
+            },
+        ];
+        this.fetchDataParallel(
+            row, 
+            rowIdx, 
+            col, 
+            colIdx, 
+            inputs, 
+            (value) => value,
+            (dataEle) => { return dataEle.metric.file;},
+            (value) =>  parseInt(value)
+        );
+    }
+
+    
+
     fetchPhpfpmPoolReqLatency(row, rowIdx, col, colIdx, poolName) {
         const inputs = [
             {
@@ -894,6 +938,12 @@ class MonitorPanel extends React.Component {
                     
                     case 'backup_mysql_size':       this.fetchBackupSize(row, rowIdx, col, colIdx, "mysql_backup_");   break;
                     case 'backup_wordpress_size':   this.fetchBackupSize(row, rowIdx, col, colIdx, "wordpress_backup_");   break;
+
+                    case 'backup_mysql_duration':   this.fetchBackupDuration(row, rowIdx, col, colIdx, "mysql_backup_");   break;
+                    case 'backup_wordpress_duration':   this.fetchBackupDuration(row, rowIdx, col, colIdx, "wordpress_backup_");   break;
+
+                    case 'backup_mysql_timestamp':   this.fetchBackupTimestamp(row, rowIdx, col, colIdx, "mysql_backup_");   break;
+                    case 'backup_wordpress_timestamp':   this.fetchBackupTimestamp(row, rowIdx, col, colIdx, "wordpress_backup_");   break;
 
                     default:        break;
                 }

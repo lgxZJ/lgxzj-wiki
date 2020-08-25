@@ -12,10 +12,6 @@ class ColumnChart extends React.Component {
 
     render() {
         const config = {
-            title: {
-              visible: true,
-              text: this.state.title,
-            },
             description: {
               visible: true,
               text: this.state.desc,
@@ -25,10 +21,10 @@ class ColumnChart extends React.Component {
             padding: 'auto',
             xField: 'name',
             yField: 'value',
-            // meta: {
-            //   type: { alias: '类别' },
-            //   sales: { alias: '销售额(万)' },
-            // },
+            meta: {
+              name: { alias: '备份' },
+              value: { alias: '值' },
+            },
             label: {
               visible: true,
               position: 'middle',
