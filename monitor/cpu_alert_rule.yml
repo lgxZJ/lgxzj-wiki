@@ -1,0 +1,11 @@
+groups:
+- name: cpu_alert
+  rules:
+  - alert: CpuHighUsageAlert
+    expr: node_cpu_seconds_total{cpu="0", mode="idle"} > 50
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: High Cpu Usage
+      description: "cpu usage of instance {{ $labels.instance }} reached highwater for 30 seconds"

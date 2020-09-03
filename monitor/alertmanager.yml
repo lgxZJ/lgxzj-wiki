@@ -1,0 +1,35 @@
+global:
+  smtp_smarthost: 'localhost:25'
+  smtp_from: 'alertmanager@lgxzj.wiki'
+
+route:
+  receiver: 'email-receiver'
+
+  group_by: ['alertname', 'cluster']
+
+  group_wait: 30s
+
+  group_interval: 5m
+
+  repeat_interval: 10m
+
+  routes:
+  - match:
+      service: inf
+    receiver: email-receiver
+  - match:
+      service: mysql
+    receiver: email-receiver
+
+
+inhibit_rules:
+- source_match:
+    severity: 'critical'
+  target_match:
+    severity: 'warning'
+  equal: ['alertname']
+
+receivers:
+- name: 'email-receiver'
+  email_configs:
+  - to: 'lgxzj@outlook.com'

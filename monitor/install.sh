@@ -62,6 +62,12 @@ nginx_prometheus_metric_listen_address=$(read_ini ${iniFileLoc} nginx_prometheus
 php_fpm_exporter_listen_address=$(read_ini ${iniFileLoc} php_fpm_exporter_listen_address)
 backup_exporter_listen_address=$(read_ini ${iniFileLoc} backup_exporter_listen_address)
 
+alert_manager_install_dir=$(read_ini ${iniFileLoc} alert_manager_install_dir)
+alert_manager_download_url=$(read_ini ${iniFileLoc} alert_manager_download_url)
+alert_manager_download_name=$(read_ini ${iniFileLoc} alert_manager_download_name)
+alert_manager_download_prefix=$(read_ini ${iniFileLoc} alert_manager_download_prefix)
+alert_manager_listen_address=$(read_ini ${iniFileLoc} alert_manager_listen_address)
+
 pwd_dir=`pwd`
 
 ##############################################################
@@ -72,6 +78,7 @@ cp stop.template stop.sh
 replace_str ./stop.sh '${ps_pusher_pid_file_loc}' ${ps_pusher_pid_file_loc}
 replace_str ./stop.sh '${pusher_install_dir}' ${pusher_install_dir}
 replace_str ./stop.sh '${monitor_exporters_install_dir}' ${monitor_exporters_install_dir}
+replace_str ./stop.sh '${alert_manager_install_dir}' ${alert_manager_install_dir}
 chmod u+x ./stop.sh
 
 ##############################################################
@@ -126,7 +133,12 @@ replace_str ./prometheus.yml '${mysql_exporter_listen_address}' ${mysql_exporter
 replace_str ./prometheus.yml '${nginx_prometheus_metric_listen_address}' ${nginx_prometheus_metric_listen_address}
 replace_str ./prometheus.yml '${php_fpm_exporter_listen_address}' ${php_fpm_exporter_listen_address}
 replace_str ./prometheus.yml '${backup_exporter_listen_address}' ${backup_exporter_listen_address}
+replace_str ./prometheus.yml '${alert_manager_listen_address}' ${alert_manager_listen_address}
+
 cp -f prometheus.yml ${monitor_prometheus_install_dir}
+
+cp -f ${cur_dir}/cpu_alert_rule.yml cpu_alert_rule.yml
+cp -f cpu_alert_rule.yml ${monitor_prometheus_install_dir}
 
 ########################################################
 # Install Pushgateway
@@ -183,3 +195,13 @@ cp ./${php_fpm_exporter_download_name} ${monitor_exporters_install_dir}/php_fpm_
 ########################################################
 cd ${pwd_dir}
 cp ../javaservers/javaservers.jar ${monitor_exporters_install_dir}/backup_exporter.jar
+
+########################################################
+# Install Alert Manager
+########################################################
+mkdir -p ${alert_manager_install_dir}
+
+wget ${alert_manager_download_url}
+tar -zxvf ${alert_manager_download_name}
+cp ${alert_manager_download_prefix}/alertmanager ${alert_manager_install_dir}
+cp ${pwd_dir}/alertmanager.yml ${alert_manager_install_dir}/alertmanager.yml

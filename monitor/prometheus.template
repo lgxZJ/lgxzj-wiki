@@ -9,10 +9,11 @@ alerting:
   alertmanagers:
   - static_configs:
     - targets:
-      # - alertmanager:9093
+      - alertmanager:${alert_manager_listen_address}
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
+  - ./cpu_alert_rule.yml
   # - "first_rules.yml"
   # - "second_rules.yml"
 

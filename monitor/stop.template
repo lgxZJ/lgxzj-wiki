@@ -50,3 +50,12 @@ else
     kill -s SIGTERM ${backup_exporter_pid}
     rm -f ${backup_exporter_pid_file}
 fi
+
+alertmanager_pid_file="${alert_manager_install_dir}/alertmanager.pid"
+if [ ! -f ${alertmanager_pid_file} ]; then
+    echo "alertmanager not active, no need to kill"
+else
+    alertmanager_pid=`cat ${alertmanager_pid_file}`
+    kill -s SIGTERM ${alertmanager_pid}
+    rm -f ${alertmanager_pid_file}
+fi
