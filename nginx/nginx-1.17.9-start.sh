@@ -30,6 +30,7 @@ react_domain=$(read_ini ${iniFileLoc} react_domain)
 install_react_dir=$(read_ini ${iniFileLoc} install_react_dir)
 
 metric_domain=$(read_ini ${iniFileLoc} metric_domain)
+alert_domain=$(read_ini ${iniFileLoc} alert_domain)
 
 ##############################################################
 # Generate conf file using templates
@@ -46,6 +47,7 @@ replace_str ./nginx.conf '${react_domain}' ${react_domain}
 replace_str ./nginx.conf '${install_react_dir}' ${install_react_dir}
 
 replace_str ./nginx.conf '${metric_domain}' ${metric_domain}
+replace_str ./nginx.conf '${alert_domain}' ${alert_domain}
 
 ##############################################################
 # Create react deploy dir

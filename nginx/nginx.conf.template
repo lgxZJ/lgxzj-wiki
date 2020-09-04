@@ -86,6 +86,21 @@ http {
 	}
     }
 
+    upstream prometheus_alertmanager_server {
+    	 server		localhost:9200;
+	 keepalive	2000;
+    }
+
+    server {
+    	listen	80;
+	server_name	${alert_domain};
+
+	location / {
+	    proxy_pass		http://prometheus_alertmanager_server;
+	    proxy_set_header	Host $host:$server_port;
+	}
+    }
+
     server {
         listen       80;
 	server_name  ${blog_domain};

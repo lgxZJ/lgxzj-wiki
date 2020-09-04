@@ -1,7 +1,5 @@
 global:
-  smtp_smarthost: 'localhost:25'
-  smtp_from: 'alertmanager@lgxzj.wiki'
-
+  
 route:
   receiver: 'email-receiver'
 
@@ -33,3 +31,11 @@ receivers:
 - name: 'email-receiver'
   email_configs:
   - to: 'lgxzj@outlook.com'
+    smarthost: 'smtp.qq.com:465'
+    from: 'alertmanager@lgxzj.wiki'
+    auth_username: '984144338@qq.com'
+    auth_password: 'ydwmkvkarsokbfhe'
+    send_resolved: true
+    require_tls: true
+    tls_config:
+      insecure_skip_verify: true
