@@ -60,12 +60,12 @@ nohup ./php_fpm_exporter server --web.listen-address 127.0.0.1:${php_fpm_exporte
 #nohup ./process_exporter -web.listen-address=127.0.0.1:${php_fpm_exporter_listen_address} -web.telemetry-path="/metrics" >> process_exporter.log &
 
 # backup_exporter
-nohup java -jar ${monitor_exporters_install_dir}/backup_exporter.jar --includeHidden=false --server.port=${backup_exporter_listen_address} --dirUrl=${install_backups_dir} > backup_exporter.log &
+nohup java -jar ${monitor_exporters_install_dir}/backup_exporter.jar --includeHidden=false --server.port=${backup_exporter_listen_address} --dirUrl=${install_backups_dir} >> backup_exporter.log &
 echo $! > backup_exporter.pid
 
 #############################################################
 # Start Alert Manager
 #############################################################
 cd ${alert_manager_install_dir}
-nohup ./alertmanager --config.file=./alertmanager.yml --web.listen-address=":${alert_manager_listen_address}" > alertmanager.log &
+nohup ./alertmanager --config.file=./alertmanager.yml --web.listen-address=":${alert_manager_listen_address}" >> alertmanager.log &
 echo $! > alertmanager.pid
