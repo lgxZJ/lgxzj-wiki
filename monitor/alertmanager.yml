@@ -3,12 +3,6 @@ global:
 route:
   receiver: 'email-receiver'
 
-  group_by: ['alertname', 'cluster']
-
-  group_wait: 30s
-
-  group_interval: 5m
-
   repeat_interval: 10m
 
   routes:
@@ -30,11 +24,11 @@ inhibit_rules:
 receivers:
 - name: 'email-receiver'
   email_configs:
-  - to: 'lgxzj@outlook.com'
-    smarthost: 'smtp.qq.com:465'
-    from: 'alertmanager@lgxzj.wiki'
-    auth_username: '984144338@qq.com'
-    auth_password: 'ydwmkvkarsokbfhe'
+  - to: '0lgxzj0@gmail.com'
+    smarthost: 'smtp.sendgrid.net:25'
+    from: 'alert@em5348.lgxzj.wiki'
+    auth_username: 'apikey'
+    auth_password: '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'
     send_resolved: true
     require_tls: true
     tls_config:

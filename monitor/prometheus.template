@@ -9,7 +9,7 @@ alerting:
   alertmanagers:
   - static_configs:
     - targets:
-      - alertmanager:${alert_manager_listen_address}
+      - localhost:${alert_manager_listen_address}
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
