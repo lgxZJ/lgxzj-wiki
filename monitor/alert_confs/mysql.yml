@@ -1,0 +1,36 @@
+groups:
+- name: mysql_alert
+  rules:
+  - alert: ActiveConnAlert
+    expr: mysql_global_status_threads_connected >= (mysql_global_variables_max_connections * 0.8)
+    for: 5s
+    labels:
+      severity: warning
+    annotations:
+      summary: High Active Connection(Above 90%)
+      description: ""
+  - alert: ErrorConnAlert
+    expr: sum(irate(mysql_global_status_connection_errors_total[15s])) > 0
+    for: 5s
+    labels:
+      severity: critical
+    annotations:
+      summary: Conn Error Occurred
+      description: ""
+  - alert: SlowQueryAlert
+    expr: irate(mysql_global_status_slow_queries[15s]) > 0
+    for: 5s
+    labels:
+      severity: warning
+    annotations:
+      summary: Slow Query Occurred
+      description: ""
+  - alert: BufferPoolNonHitAlert
+    expr: irate(mysql_global_status_innodb_buffer_pool_reads[15s]) > 0
+    for: 5s
+    labels:
+      severity: warning
+    annotations:
+      summary: Buffer Pool Cache Non Hit In Request
+      description: ""
+      
