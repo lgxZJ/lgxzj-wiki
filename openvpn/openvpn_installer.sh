@@ -52,6 +52,9 @@ function read_ini() {
 global__download_dir=$(read_ini global__download_dir)
 openvpn__install_dir=$(read_ini openvpn__install_dir)
 openvpn__install_etc_dir=$(read_ini openvpn__install_etc_dir)
+openvpn__install_etc_ca_dir=$(read_ini openvpn__install_etc_ca_dir)
+openvpn__install_etc_server_dir=$(read_ini openvpn__install_etc_server_dir)
+openvpn__install_etc_server_client_dir=$(read_ini openvpn__install_etc_client_dir)
 openvpn__install_download_url=$(read_ini openvpn__install_download_url)
 openvpn__install_download_package=$(read_ini openvpn__install_download_package)
 openvpn__install_download_folder=$(read_ini openvpn__install_download_folder)
@@ -100,4 +103,52 @@ cd $easyrsa__install_download_name
 
 ###############################################################
 #                     Generate CA
+#  No vars file, probably using the default settings of EasyRsa. 
+#  Guide can be found here: https://www.howtoforge.com/tutorial/
+#  how-to-install-openvpn-server-and-client-with-easy-rsa-3-on-
+#  centos-8/
+###############################################################
+prepare_dir $openvpn__install_etc_dir
+prepare_dir $openvpn__install_etc_ca_dir
+
+cp $easyrsa__install_download_name/easyrsa $openvpn__install_etc_ca_dir
+cd $openvpn__install_etc_ca_dir
+
+./easyrsa init-pki
+./easyrsa build-ca
+
+###############################################################
+#                  Generate Server Certificate                       
+###############################################################
+./easyrsa gen-req lgxzj_openvpn_server nopass
+./easyrsa sign-req server lgxzj_openvpn_server
+
+###############################################################
+#                  Generate Client Certificate
+###############################################################
+./easyrsa gen-req lgxzj_openvpn_client nopass
+./easyrsa sign-req client lgxzj_openvpn_client
+
+###############################################################
+#                  Generate Diffie-Hellman Key
+###############################################################
+./easyrsa gen-dh
+
+###############################################################
+#        Organize Server&Client Certificate to Bundles
+###############################################################
+prepare_dir $openvpn__install_etc_server_dir
+prepare_dir $openvpn__install_etc_client_dir
+
+cp ./pki/ca.crt $openvpn__install_etc_server_dir
+cp ./pki/issued/lgxzj_openvpn_server.crt $openvpn__install_etc_server_dir
+cp ./pki/private/lgxzj_openvpn_server.key $$openvpn__install_etc_server_dir
+cp ./pki/dh.pem $$openvpn__install_etc_server_dir
+
+cp ./pki/ca.crt $openvpn__install_etc_client_dir
+cp ./pki/issued/lgxzj_openvpn_client.crt $openvpn__install_etc_client_dir
+cp ./pki/private/lgxzj_openvpn_client.key $openvpn__install_etc_client_dir
+
+###############################################################
+#                  Configure OpenVpn
 ###############################################################
