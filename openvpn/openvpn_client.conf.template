@@ -1,12 +1,12 @@
 client
 dev tun
-proto udp
+proto $openvpn__server_protocol
 
-remote xxx.xxx.xxx.xxx 1194
+remote $openvpn__server_host $openvpn__server_port
 
 ca ca.crt
-cert client01.crt
-key client01.key
+cert openvpn_client.crt
+key openvpn_client.key
 
 cipher AES-256-CBC
 auth SHA512

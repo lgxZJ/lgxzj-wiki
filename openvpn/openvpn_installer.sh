@@ -1,3 +1,8 @@
+###########################################################
+#                        START
+###########################################################
+echo '########### START ###########'
+
 ###############################################################
 #                Read Vars From Conf Files
 ###############################################################
@@ -152,3 +157,64 @@ cp ./pki/private/lgxzj_openvpn_client.key $openvpn__install_etc_client_dir
 ###############################################################
 #                  Configure OpenVpn
 ###############################################################
+function replace_str() {
+    if [ "$#" -ne 3 ]; then
+	echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+	echo -e "usage: replace_str fileLoc oldText newText"
+	echo -e "current: replace_str $1 $2 $3"
+	echo -e "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+	return 255
+    fi
+
+    fileLoc="$1"
+    oldText="$2"
+    newText="$3"
+
+    if [[ "${OSTYPE}" == "darwin"* ]]; then
+    	sed -i '.bak' "s#${oldText}#${newText}#g" ${fileLoc}
+    else
+        sed -i "s#${oldText}#${newText}#g" ${fileLoc}
+    fi
+}
+
+openvpn__install_log_dir=$(read_ini openvpn__install_log_dir)
+prepare_dir ${openvpn__install_log_dir}
+
+cp ./openvpn_server.conf.template ./openvpn_server.conf
+openvpn__install_log_dir=$(read_ini openvpn__install_log_dir)
+replace_str ./openvpn_server.conf '${openvpn__install_log_dir}' $openvpn__install_log_dir
+
+openvpn__install_etc_server_dir=$(read_ini $openvpn__install_etc_server_dir)
+replace_str ./openvpn_server.conf '${$openvpn__install_etc_server_dir}' $$openvpn__install_etc_server_dir
+
+openvpn__server_port=$(read_inini openvpn__server_port)
+replace_str ./openvpn_server.conf '${openvpn__server_port}' $openvpn__server_port
+
+openvpn__server_protocol=$(read_ini openvpn__server_protocol)
+replace_str ./openvpn_server.conf '${openvpn__server_protocol}' $openvpn__server_protocol
+
+cp ./openvpn_server.conf $openvpn__install_etc_server_dir
+
+####
+
+cp ./openvpn_client.conf.template ./openvpn_client.ovpn
+openvpn__server_host=$(read_ini openvpn__server_host)
+replace_str ./openvpn_client.ovpn '${openvpn__server_host}' $openvpn__server_host
+
+replace_str ./openvpn_client.ovpn '${openvpn__server_port}' $openvpn__server_port
+replace_str ./openvpn_client.ovpn '${openvpn__server_protocol}' $openvpn__server_protocol
+
+cp ./openvpn_client.ovpn $openvpn__install_etc_client_dir
+
+###########################################################
+#             Create Client Conf Bundle
+###########################################################
+cd $openvpn__install_etc_dir
+zip -r $openvpn__install_etc_client_dir openvpn_client.zip
+
+
+###########################################################
+#                      END
+###########################################################
+echo '###############  DONE  ###############'

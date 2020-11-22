@@ -1,16 +1,16 @@
 # OpenVPN Port, Protocol, and the Tun
-port 1194
-proto udp
+port $openvpn__server_port
+proto $openvpn__server_protocol
 dev tun
 
 # OpenVPN Server Certificate - CA, server key and certificate
-ca /etc/openvpn/server/ca.crt
-cert /etc/openvpn/server/hakase-server.crt
-key /etc/openvpn/server/hakase-server.key
+ca $openvpn__install_etc_server_dir/ca.crt
+cert $openvpn__install_etc_server_dir/openvpn_server.crt
+key $openvpn__install_etc_server_dir/openvpn_server.key
 
 #DH and CRL key
-dh /etc/openvpn/server/dh.pem
-crl-verify /etc/openvpn/server/crl.pem
+dh $openvpn__install_etc_server_dir/dh.pem
+#crl-verify /etc/openvpn/server/crl.pem
 
 # Network Configuration - Internal network
 # Redirect all Connection through OpenVPN Server
@@ -41,5 +41,5 @@ user nobody
 group nobody
 
 # OpenVPN Log
-log-append /var/log/openvpn.log
+log-append $openvpn__install_log_dir/openvpn.log
 verb 3
