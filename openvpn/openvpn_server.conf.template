@@ -1,15 +1,15 @@
 # OpenVPN Port, Protocol, and the Tun
-port $openvpn__server_port
-proto $openvpn__server_protocol
+port ${openvpn__server_port}
+proto ${openvpn__server_protocol}
 dev tun
 
 # OpenVPN Server Certificate - CA, server key and certificate
-ca $openvpn__install_etc_server_dir/ca.crt
-cert $openvpn__install_etc_server_dir/openvpn_server.crt
-key $openvpn__install_etc_server_dir/openvpn_server.key
+ca ${openvpn__install_etc_server_dir}/ca.crt
+cert ${openvpn__install_etc_server_dir}/lgxzj_openvpn_server.crt
+key ${openvpn__install_etc_server_dir}/lgxzj_openvpn_server.key
 
 #DH and CRL key
-dh $openvpn__install_etc_server_dir/dh.pem
+dh ${openvpn__install_etc_server_dir}/dh.pem
 #crl-verify /etc/openvpn/server/crl.pem
 
 # Network Configuration - Internal network
@@ -41,5 +41,5 @@ user nobody
 group nobody
 
 # OpenVPN Log
-log-append $openvpn__install_log_dir/openvpn.log
+log-append ${openvpn__install_log_dir}/openvpn.log
 verb 3

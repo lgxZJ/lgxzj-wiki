@@ -1,12 +1,12 @@
 client
 dev tun
-proto $openvpn__server_protocol
+proto ${openvpn__server_protocol}
 
-remote $openvpn__server_host $openvpn__server_port
+remote ${openvpn__server_host} ${openvpn__server_port}
 
 ca ca.crt
-cert openvpn_client.crt
-key openvpn_client.key
+cert lgxzj_openvpn_client.crt
+key lgxzj_openvpn_client.key
 
 cipher AES-256-CBC
 auth SHA512

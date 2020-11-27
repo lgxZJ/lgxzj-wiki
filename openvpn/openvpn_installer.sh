@@ -59,13 +59,15 @@ openvpn__install_dir=$(read_ini openvpn__install_dir)
 openvpn__install_etc_dir=$(read_ini openvpn__install_etc_dir)
 openvpn__install_etc_ca_dir=$(read_ini openvpn__install_etc_ca_dir)
 openvpn__install_etc_server_dir=$(read_ini openvpn__install_etc_server_dir)
-openvpn__install_etc_server_client_dir=$(read_ini openvpn__install_etc_client_dir)
+openvpn__install_etc_client_dir=$(read_ini openvpn__install_etc_client_dir)
 openvpn__install_download_url=$(read_ini openvpn__install_download_url)
 openvpn__install_download_package=$(read_ini openvpn__install_download_package)
 openvpn__install_download_folder=$(read_ini openvpn__install_download_folder)
 easyrsa__install_download_url=$(read_ini easyrsa__install_download_url)
 easyrsa__install_download_package=$(read_ini easyrsa__install_download_package)
 easyrsa__install_download_name=$(read_ini easyrsa__install_download_name)
+
+work_dir=$(pwd)
 
 ###############################################################
 #                      Common Func
@@ -100,6 +102,7 @@ make install
 #                      Install EasyRsa
 ###############################################################
 cd $global__download_dir
+rm -rf $easyrsa__install_download_name
 rm -f $easyrsa__install_download_package
 
 wget $easyrsa__install_download_url
@@ -115,29 +118,31 @@ cd $easyrsa__install_download_name
 ###############################################################
 prepare_dir $openvpn__install_etc_dir
 prepare_dir $openvpn__install_etc_ca_dir
+prepare_dir ./lgxzj
+cd ./lgxzj
 
-cp $easyrsa__install_download_name/easyrsa $openvpn__install_etc_ca_dir
-cd $openvpn__install_etc_ca_dir
+#cp $global__download_dir/$easyrsa__install_download_name/easyrsa $openvpn__install_etc_ca_dir
+#cd $openvpn__install_etc_ca_dir
 
-./easyrsa init-pki
-./easyrsa build-ca
+../easyrsa init-pki
+../easyrsa build-ca
 
 ###############################################################
 #                  Generate Server Certificate                       
 ###############################################################
-./easyrsa gen-req lgxzj_openvpn_server nopass
-./easyrsa sign-req server lgxzj_openvpn_server
+../easyrsa gen-req lgxzj_openvpn_server nopass
+../easyrsa sign-req server lgxzj_openvpn_server
 
 ###############################################################
 #                  Generate Client Certificate
 ###############################################################
-./easyrsa gen-req lgxzj_openvpn_client nopass
-./easyrsa sign-req client lgxzj_openvpn_client
+../easyrsa gen-req lgxzj_openvpn_client nopass
+../easyrsa sign-req client lgxzj_openvpn_client
 
 ###############################################################
 #                  Generate Diffie-Hellman Key
 ###############################################################
-./easyrsa gen-dh
+../easyrsa gen-dh
 
 ###############################################################
 #        Organize Server&Client Certificate to Bundles
@@ -147,8 +152,8 @@ prepare_dir $openvpn__install_etc_client_dir
 
 cp ./pki/ca.crt $openvpn__install_etc_server_dir
 cp ./pki/issued/lgxzj_openvpn_server.crt $openvpn__install_etc_server_dir
-cp ./pki/private/lgxzj_openvpn_server.key $$openvpn__install_etc_server_dir
-cp ./pki/dh.pem $$openvpn__install_etc_server_dir
+cp ./pki/private/lgxzj_openvpn_server.key $openvpn__install_etc_server_dir
+cp ./pki/dh.pem $openvpn__install_etc_server_dir
 
 cp ./pki/ca.crt $openvpn__install_etc_client_dir
 cp ./pki/issued/lgxzj_openvpn_client.crt $openvpn__install_etc_client_dir
@@ -177,41 +182,44 @@ function replace_str() {
         sed -i "s#${oldText}#${newText}#g" ${fileLoc}
     fi
 }
+cd $work_dir
 
 openvpn__install_log_dir=$(read_ini openvpn__install_log_dir)
 prepare_dir ${openvpn__install_log_dir}
 
-cp ./openvpn_server.conf.template ./openvpn_server.conf
+rm -f ./lgxzj_openvpn_server.conf
+cp ./openvpn_server.conf.template ./lgxzj_openvpn_server.conf
 openvpn__install_log_dir=$(read_ini openvpn__install_log_dir)
-replace_str ./openvpn_server.conf '${openvpn__install_log_dir}' $openvpn__install_log_dir
+replace_str ./lgxzj_openvpn_server.conf '${openvpn__install_log_dir}' $openvpn__install_log_dir
 
-openvpn__install_etc_server_dir=$(read_ini $openvpn__install_etc_server_dir)
-replace_str ./openvpn_server.conf '${$openvpn__install_etc_server_dir}' $$openvpn__install_etc_server_dir
+openvpn__install_etc_server_dir=$(read_ini openvpn__install_etc_server_dir)
+replace_str ./lgxzj_openvpn_server.conf '${openvpn__install_etc_server_dir}' $openvpn__install_etc_server_dir
 
-openvpn__server_port=$(read_inini openvpn__server_port)
-replace_str ./openvpn_server.conf '${openvpn__server_port}' $openvpn__server_port
+openvpn__server_port=$(read_ini openvpn__server_port)
+replace_str ./lgxzj_openvpn_server.conf '${openvpn__server_port}' $openvpn__server_port
 
 openvpn__server_protocol=$(read_ini openvpn__server_protocol)
-replace_str ./openvpn_server.conf '${openvpn__server_protocol}' $openvpn__server_protocol
+replace_str ./lgxzj_openvpn_server.conf '${openvpn__server_protocol}' $openvpn__server_protocol
 
-cp ./openvpn_server.conf $openvpn__install_etc_server_dir
+cp ./lgxzj_openvpn_server.conf $openvpn__install_etc_server_dir
 
 ####
 
-cp ./openvpn_client.conf.template ./openvpn_client.ovpn
+rm -f ./lgxzj_openvpn_client.ovpn
+cp ./openvpn_client.conf.template ./lgxzj_openvpn_client.ovpn
 openvpn__server_host=$(read_ini openvpn__server_host)
-replace_str ./openvpn_client.ovpn '${openvpn__server_host}' $openvpn__server_host
+replace_str ./lgxzj_openvpn_client.ovpn '${openvpn__server_host}' $openvpn__server_host
 
-replace_str ./openvpn_client.ovpn '${openvpn__server_port}' $openvpn__server_port
-replace_str ./openvpn_client.ovpn '${openvpn__server_protocol}' $openvpn__server_protocol
+replace_str ./lgxzj_openvpn_client.ovpn '${openvpn__server_port}' $openvpn__server_port
+replace_str ./lgxzj_openvpn_client.ovpn '${openvpn__server_protocol}' $openvpn__server_protocol
 
-cp ./openvpn_client.ovpn $openvpn__install_etc_client_dir
+cp ./lgxzj_openvpn_client.ovpn $openvpn__install_etc_client_dir
 
 ###########################################################
 #             Create Client Conf Bundle
 ###########################################################
 cd $openvpn__install_etc_dir
-zip -r $openvpn__install_etc_client_dir openvpn_client.zip
+zip -r openvpn_client.zip $openvpn__install_etc_client_dir
 
 
 ###########################################################
