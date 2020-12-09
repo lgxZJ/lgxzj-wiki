@@ -66,5 +66,4 @@ easyrsa__install_download_name=$(read_ini easyrsa__install_download_name)
 #                       Real Commands
 ################################################################
 
-$openvpn__install_dir/sbin/openvpn --config lgxzj_conf/server/openvpn_server.conf &
-echo $? > $openvpn__install_dir/openvpn.pid
+$openvpn__install_dir/sbin/openvpn --config $openvpn__install_dir/lgxzj_conf/server/lgxzj_openvpn_server.conf

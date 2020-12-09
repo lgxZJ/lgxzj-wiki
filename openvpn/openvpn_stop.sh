@@ -67,6 +67,4 @@ easyrsa__install_download_name=$(read_ini easyrsa__install_download_name)
 #                      Real Commands
 ################################################################
 
-echo $? > $openvpn__install_dir/openvpn.pid
-kill -s SIGTERM $(cat $openvpn__install_dir/openvpn.pid)
-rm -f $openvpn__install_dir/openvpn.pid
+kill -s SIGTERM $(pgrep openvpn)

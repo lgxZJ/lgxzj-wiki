@@ -125,19 +125,19 @@ cd ./lgxzj
 #cd $openvpn__install_etc_ca_dir
 
 ../easyrsa init-pki
-../easyrsa build-ca
+( echo "lgxzj.wiki" ) |  ../easyrsa build-ca nopass
 
 ###############################################################
 #                  Generate Server Certificate                       
 ###############################################################
-../easyrsa gen-req lgxzj_openvpn_server nopass
-../easyrsa sign-req server lgxzj_openvpn_server
+( echo "lgxzj_openvpn_server" ) | ../easyrsa gen-req lgxzj_openvpn_server nopass
+( echo "yes" ) | ../easyrsa sign-req server lgxzj_openvpn_server nopass
 
 ###############################################################
 #                  Generate Client Certificate
 ###############################################################
-../easyrsa gen-req lgxzj_openvpn_client nopass
-../easyrsa sign-req client lgxzj_openvpn_client
+( echo "lgxzj_openvpn_client" ) | ../easyrsa gen-req lgxzj_openvpn_client nopass
+( echo "yes" ) | ../easyrsa sign-req client lgxzj_openvpn_client nopass
 
 ###############################################################
 #                  Generate Diffie-Hellman Key
